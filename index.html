@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elective Navigator</title>
+<style>
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#0f1b33; --ink2:#4a5672; --ink3:#8590a8; --line:#e3e7ef;
+  --navy:#13223f; --navy2:#1c2f55; --brand:#2f5bea; --brand-soft:#e8eeff;
+  --ok:#14915f; --ok-soft:#e3f6ed; --warn:#b7791f; --warn-soft:#fdf3e1; --bad:#d23c3c; --bad-soft:#fdeaea;
+  --accent:#e26d3d; --accent2:#f08a4b;
+  --pA:#2f5bea; --pB:#8a4fd8; --pU:#0f9aa8;
+  --r:14px; --shadow:0 1px 2px rgba(15,27,51,.05),0 6px 18px rgba(15,27,51,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,"Inter Display",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- sign in ---------- */
+#signin{min-height:100vh;display:grid;place-items:center;background:radial-gradient(1200px 500px at 50% -10%,#dfe7ff,transparent),var(--bg)}
+.card-in{width:400px;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:34px 32px 26px;text-align:center;border-top:4px solid var(--brand)}
+.logo{width:68px;height:68px;border-radius:20px;margin:0 auto 14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),#5b7cff);color:#fff;box-shadow:0 8px 20px rgba(47,91,234,.3)}
+.card-in h1{font-size:22px;margin:0 0 4px}
+.card-in .sub{color:var(--ink2);margin:0 0 20px}
+.demo-note{background:var(--brand-soft);color:#2a44a8;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:14px}
+.field{display:flex;align-items:center;gap:10px;background:#f5f7fb;border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:10px;text-align:left;color:var(--ink2)}
+.field b{color:var(--ink);font-weight:600}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .12s, background .2s, box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:#2449c9}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:#f5f7fb}
+.btn-accent{background:#fff;color:var(--accent);}
+.btn-ok{background:var(--ok);color:#fff}
+.btn-sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+.btn-block{width:100%;padding:12px}
+.fine{font-size:11.5px;color:var(--ink3);margin-top:16px}
+
+/* ---------- shell ---------- */
+#app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{background:var(--navy);color:#c9d3ea;padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#fff;font-weight:700;font-size:15px}
+.brand .mini{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#5b7cff);display:grid;place-items:center}
+.brand small{display:block;font-weight:500;color:#8fa0c6;font-size:11.5px}
+.nav-h{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#7385ad;margin:16px 10px 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:#c9d3ea;text-decoration:none;cursor:pointer;font-size:13.5px}
+.nav a:hover{background:var(--navy2)}
+.nav a.on{background:var(--brand);color:#fff}
+.nav a .new{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
+aside .foot{margin-top:auto;font-size:11px;color:#6f80a6;padding:10px}
+main{min-width:0}
+header{height:60px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 26px;position:sticky;top:0;z-index:5}
+header .term{background:var(--brand-soft);color:#2a44a8;font-weight:600;font-size:12px;padding:4px 10px;border-radius:20px}
+header .sp{flex:1}
+header .who{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:22px;padding:4px 12px 4px 4px;font-size:12.5px;font-weight:600}
+header .av{width:28px;height:28px;border-radius:50%;background:#dfe6fb;color:#2a44a8;display:grid;place-items:center;font-size:11px;font-weight:700}
+.page{padding:24px 26px 60px;max-width:1240px}
+.ph{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px}
+.ph h2{margin:0;font-size:24px;letter-spacing:-.01em}
+.ph p{margin:4px 0 0;color:var(--ink2)}
+.ph .sp{flex:1}
+.panel{background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kv{color:var(--ink3);font-size:12px;margin-top:8px}
+.kv b{display:block;color:var(--ink);font-size:13.5px;margin-top:1px}
+.ttl{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+.ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.notice{background:linear-gradient(90deg,var(--brand),#4f73f5);color:#fff;border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.notice b{font-weight:700}
+
+/* home elective card */
+.elec-card{grid-column:span 2;border:2px solid transparent;transition:border-color .3s, box-shadow .3s}
+.elec-card.glow{border-color:var(--accent);box-shadow:0 0 0 6px rgba(226,109,61,.12),var(--shadow)}
+.dots{display:flex;gap:6px;margin:12px 0 10px}
+.dot{flex:1;height:10px;border-radius:6px;background:#e9edf5}
+.dot.done{background:var(--ok)}
+.dot.now{background:var(--accent)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ---------- planner ---------- */
+.summary-row{display:grid;grid-template-columns:1fr 1fr 1fr 1.4fr;gap:14px;margin-bottom:16px}
+.stat{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:13px 16px}
+.stat .l{font-size:12px;color:var(--ink3)}
+.stat .v{font-weight:700;font-size:16px;margin-top:3px}
+.bar{height:7px;background:#edf0f6;border-radius:5px;overflow:hidden;margin-top:9px}
+.bar>i{display:block;height:100%;background:var(--brand);border-radius:5px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+
+.slots-wrap{margin-bottom:16px}
+.slots-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.slots-head h3{margin:0;font-size:16px}
+.slots-head .sp{flex:1}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.slot{border:1.5px dashed #cdd5e4;border-radius:12px;padding:10px 11px;min-height:118px;display:flex;flex-direction:column;gap:4px;background:#fbfcfe;position:relative;transition:all .35s}
+.slot .sl-top{display:flex;align-items:center;gap:6px}
+.slot .nm{font-weight:700;font-size:12.5px}
+.slot .meta{font-size:11px;color:var(--ink3)}
+.slot .crs{margin-top:auto;font-size:11.5px;font-weight:600;line-height:1.3}
+.slot .crs small{display:block;font-weight:500;color:var(--ink2)}
+.slot.done{border-style:solid;border-color:#bfe5d3;background:var(--ok-soft)}
+.slot.now{border-color:var(--accent);background:#fff8f3}
+.slot.now.filled{border-style:solid;background:#fff;border-color:var(--brand);box-shadow:0 0 0 3px rgba(47,91,234,.1)}
+.slot.plan{border-color:#d6c8f2;background:#faf7ff}
+.slot.plan.filled{border-style:solid}
+.slot.flash{animation:flash 1s}
+@keyframes flash{0%{transform:scale(1)}30%{transform:scale(1.05);box-shadow:0 0 0 8px rgba(47,91,234,.18)}100%{transform:scale(1)}}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.tA{background:#e8eeff;color:var(--pA)}
+.tB{background:#f1e9fc;color:var(--pB)}
+.tF{background:#e6f1ff;color:#1d5fc4}
+.drop{display:block;border:2px dashed #cdd5e4;border-radius:14px;padding:34px;text-align:center;cursor:pointer;margin:14px 0;background:#fbfcfe}.drop.hot,.drop:hover{border-color:var(--brand);background:var(--brand-soft)}
+.dlog{color:var(--ink2);font-size:13px;margin:8px 0;padding-left:18px}
+.tU{background:#e0f5f7;color:#0b7c88}
+.tOk{background:var(--ok-soft);color:var(--ok)}
+.tNow{background:#ffe9dd;color:#c4531f}
+.tPlan{background:#efe8fb;color:#6d3dc0}
+.tBad{background:var(--bad-soft);color:var(--bad)}
+.tWarn{background:var(--warn-soft);color:var(--warn)}
+.tGray{background:#eef1f6;color:var(--ink2)}
+.xbtn{position:absolute;top:6px;right:6px;border:0;background:transparent;color:var(--ink3);font-size:14px;line-height:1;padding:2px}
+
+.ai{background:linear-gradient(95deg,var(--accent),var(--accent2));color:#fff;border-radius:var(--r);padding:16px 18px;margin-bottom:16px;display:flex;flex-direction:column;gap:12px}
+.ai-top{display:flex;align-items:center;gap:12px}
+.ai-top .ic{background:rgba(255,255,255,.18);color:#fff}
+.ai-top h3{margin:0;font-size:16px}
+.ai-top p{margin:2px 0 0;font-size:12.5px;opacity:.9}
+.ai-top .sp{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.08);color:#fff;border-radius:20px;padding:6px 13px;font-weight:600;font-size:12.5px;display:inline-flex;gap:6px;align-items:center;transition:all .2s}
+.chip.on{background:#fff;color:var(--accent);border-color:#fff}
+
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 12px;height:40px}
+.search input{border:0;outline:0;flex:1;font:inherit;background:transparent}
+.toggle{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 12px;height:40px;font-weight:600;font-size:12.5px;color:var(--ink2);user-select:none;cursor:pointer}
+.toggle .sw{width:30px;height:18px;border-radius:10px;background:#d5dbe7;position:relative;transition:background .2s}
+.toggle .sw::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .2s}
+.toggle.on{color:var(--ink);border-color:#c8d3f5}
+.toggle.on .sw{background:var(--brand)}
+.toggle.on .sw::after{left:14px}
+.count{font-size:12.5px;color:var(--ink3);margin-left:auto}
+
+.list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cc{background:#fff;border-radius:13px;box-shadow:var(--shadow);padding:14px 15px;display:flex;flex-direction:column;gap:8px;border:1.5px solid transparent;transition:border-color .2s, transform .2s, opacity .3s}
+.cc:hover{border-color:#cfd8f3}
+.cc.dim{opacity:.6}
+.cc .r1{display:flex;align-items:flex-start;gap:8px}
+.cc .code{font-weight:800;font-size:13px}
+.cc .name{font-weight:600;font-size:13.5px;line-height:1.3}
+.cc .match{margin-left:auto;text-align:right;flex-shrink:0}
+.cc .match b{display:block;font-size:17px;color:var(--brand)}
+.cc .match span{font-size:10.5px;color:var(--ink3)}
+.cc .why{font-size:12px;color:var(--ink2);background:#f6f8fc;border-radius:8px;padding:7px 9px;line-height:1.45}
+.cc .why b{color:var(--ink)}
+.cc .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cc .when{font-size:12px;color:var(--ink2)}
+.cc .acts{display:flex;gap:8px;margin-top:auto;padding-top:2px}
+.cc .acts .btn{flex:1}
+.cc.added{border-color:var(--ok);background:#fbfffd}
+.empty{grid-column:1/-1;text-align:center;color:var(--ink3);padding:30px}
+
+/* drawer + modal */
+.scrim{position:fixed;inset:0;background:rgba(15,27,51,.38);backdrop-filter:blur(3px);z-index:20;opacity:0;transition:opacity .25s;pointer-events:none}
+.scrim.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:460px;background:#fff;z-index:21;box-shadow:-10px 0 40px rgba(15,27,51,.15);transform:translateX(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.drawer.show{transform:none}
+.dr-h{padding:22px 24px 14px;border-bottom:1px solid var(--line)}
+.dr-h .code{font-weight:800;color:var(--brand)}
+.dr-h h3{margin:4px 0 8px;font-size:20px}
+.dr-b{padding:18px 24px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:16px}
+.dr-b h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3)}
+.dr-b p{margin:0;line-height:1.55;color:var(--ink2)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fact{background:#f6f8fc;border-radius:10px;padding:10px 12px}
+.fact span{font-size:11.5px;color:var(--ink3)}
+.fact b{display:block;margin-top:2px}
+.counts{display:flex;flex-direction:column;gap:6px}
+.counts div{display:flex;align-items:center;gap:8px;font-size:13px}
+.dr-f{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px}
+.dr-f .btn{flex:1}
+.slotpick{display:flex;flex-direction:column;gap:8px}
+.slotpick button{display:flex;align-items:center;gap:10px;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+.slotpick button:hover{border-color:var(--brand);background:#f7f9ff}
+.slotpick button small{color:var(--ink3);margin-left:auto}
+
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);opacity:0;z-index:22;background:#fff;border-radius:18px;box-shadow:0 30px 80px rgba(15,27,51,.25);width:640px;max-width:calc(100vw - 32px);max-height:calc(100vh - 60px);overflow:auto;transition:all .28s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.modal.show{opacity:1;transform:translate(-50%,-50%);pointer-events:auto}
+.m-h{padding:22px 24px 6px;display:flex;gap:12px;align-items:flex-start}
+.m-h h3{margin:0;font-size:19px}
+.m-h p{margin:4px 0 0;color:var(--ink2)}
+.m-b{padding:12px 24px}
+.m-f{padding:12px 24px 22px;display:flex;justify-content:flex-end;gap:10px}
+.why-box{background:var(--bad-soft);border:1px solid #f6c9c9;color:#8f2525;border-radius:12px;padding:12px 14px;line-height:1.5}
+.why-box b{color:#7a1616}
+.alt{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-top:8px}
+.alt .name{font-weight:600}
+.alt .sub{font-size:12px;color:var(--ink2)}
+.alt .btn{margin-left:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11.5px;color:var(--ink3);text-align:left;font-weight:600;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:9px 6px;border-bottom:1px solid #f0f2f7;font-size:13px}
+td.r,th.r{text-align:right}
+.checks{display:flex;flex-direction:column;gap:7px;margin-top:14px;background:var(--ok-soft);border-radius:12px;padding:12px 14px;color:#0f6e48;font-weight:600;font-size:13px}
+.checks div{display:flex;gap:8px;align-items:center}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;z-index:30;transition:all .3s;display:flex;gap:10px;align-items:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.sheet-wrap{display:grid;place-items:center;padding:10px 0}
+.sheet-wrap .fn{color:var(--ink2);font-size:13px;margin-bottom:10px}
+.sheet-wrap img{width:860px;max-width:100%;border-radius:12px;box-shadow:0 20px 50px rgba(15,27,51,.18)}
+.disclaimer{position:fixed;bottom:8px;right:12px;font-size:10.5px;color:var(--ink3);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px;z-index:4}
+svg{flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- ================= SIGN IN ================= -->
+<section id="signin">
+  <div class="card-in">
+    <div class="logo"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+    <h1>Elective Navigator</h1>
+    <p class="sub">Yaşar University · Software Engineering</p>
+    <div class="demo-note">No account, no password. Your files are read in this browser and never leave it.</div>
+    
+    <button id="btn-signin" class="btn btn-primary btn-block" style="margin-top:6px">Try the demo student
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button id="btn-import" class="btn btn-ghost btn-block" style="margin-top:10px">Import my own PDFs</button>
+    <div class="fine">Course project prototype. Not the official Yaşar University system.<br>Curriculum from the 2025–26 Bologna listing; timetables come from the official Fall 2026–27 list; the demo student's grades are fictional.</div>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<section id="app" class="hidden">
+  <aside>
+    <div class="brand"><div class="mini"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div><div>Elective Navigator<small>Course registration</small></div></div>
+    <div class="nav-h">General</div>
+    <nav class="nav">
+      <a data-go="home" class="on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+      <a data-go="reg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Course Registration</a>
+      <a data-go="data"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Import my data</a>
+      <a data-go="plan" id="nav-plan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>Elective Planner<span class="new">NEW</span></a>
+      <a><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M10 19V9M16 19v-6M22 19H2"/></svg>Grades &amp; Transcript</a>
+    </nav>
+    <div class="nav-h">Academic</div>
+    <nav class="nav">
+      <a><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg>Curriculum</a>
+      <a><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Advisor messages</a>
+    </nav>
+    <div class="foot">Course project prototype</div>
+  </aside>
+  <main>
+    <header>
+      <b>Yaşar University</b><span class="term">2026–2027 Fall</span>
+      <span class="sp"></span>
+      
+      <span class="who" id="who"></span>
+    </header>
+
+    <!-- HOME -->
+    <div id="pg-home" class="page">
+      <div class="notice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span><b>Notice</b>&nbsp; Timetables are from the official Fall 2026–27 course list. Section numbers and seat counts are not public, so they are not shown.</span></div>
+      <div class="grid4"><div class="panel"><div class="ttl"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M14 10h4M14 14h3"/></svg></span>Student</div><div id="home-id"></div></div>
+<div class="panel"><div class="ttl"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></span>Program</div><div id="home-prog"></div></div>
+<div class="elec-card panel" id="home-elec"><div class="ttl"><span class="ic" style="background:#ffe9dd;color:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>Elective progress<span class="sp" style="flex:1"></span><span class="tag tNow">3 due this term</span></div>
+          <div class="dots" id="home-dots"></div>
+          <div class="legend" id="home-legend"><span><i style="background:var(--ok)"></i>Completed (2)</span><span><i style="background:var(--accent)"></i>Due this term (3)</span><span><i style="background:#e9edf5"></i>Spring (3)</span></div>
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:center"><span id="home-elec-text" style="color:var(--ink2);font-size:12.5px"></span><span style="flex:1"></span><button class="btn btn-primary btn-sm" id="btn-open-planner">Open Elective Planner</button></div>
+        </div>
+        
+<div class="panel"><div class="ttl"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></span>Academic</div><div id="home-acad"></div></div>
+<div class="panel"><div class="ttl"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Registration</div><div id="home-reg"></div></div>
+<div class="panel"><div class="ttl"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/></svg></span>Compulsory this term</div><div id="home-comp"></div></div>
+    </div>
+    </div>
+
+    <!-- REGISTRATION (light) -->
+    <div id="pg-reg" class="page hidden">
+      <div class="ph"><div><h2>Course Registration</h2><p>Compulsory courses for semester 7 are added automatically. Electives come from the Elective Planner.</p></div></div>
+      <div class="panel" id="reg-table"></div>
+    </div>
+
+    <!-- PLANNER -->
+    <div id="pg-plan" class="page hidden">
+      <div class="ph"><div><h2>Elective Planner</h2><p>Every elective slot in your curriculum, which pool it accepts, and courses that actually count for it.</p></div><span class="sp"></span>
+        <button class="btn btn-primary" id="btn-review"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Review my plan</button></div>
+
+      <div class="summary-row">
+        <div class="stat"><div class="l">Elective slots done</div><div class="v" id="st-slots">2 / 8</div></div>
+        <div class="stat"><div class="l">Due this term</div><div class="v" id="st-now">0 / 3 filled</div></div>
+        <div class="stat"><div class="l">Clashes</div><div class="v" id="st-clash" style="color:var(--ok)">None</div></div>
+        <div class="stat"><div style="display:flex"><div class="l">Total ECTS this term</div><span style="flex:1"></span><b id="st-ects">19 / 40</b></div><div class="bar"><i id="st-bar" style="width:47.5%"></i></div></div>
+      </div>
+
+      <div class="panel slots-wrap">
+        <div class="slots-head"><h3>Your elective slots</h3>
+          <span class="tag tA">A · department electives</span><span class="tag tB">B · cross-faculty</span><span class="tag tF">Field · A or B</span><span class="tag tU">U · university electives</span>
+          <span class="sp"></span><button class="btn btn-ghost btn-sm" id="btn-spring"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>Draft my spring plan</button></div>
+        <div class="slots" id="slots"></div>
+      </div>
+
+      <div class="ai">
+        <div class="ai-top"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span>
+          <div><h3>What are you interested in?</h3><p>Pick a few topics. Courses are ranked by your interests and by how well you did in the courses they build on.</p></div><span class="sp"></span>
+          <button class="btn btn-accent btn-sm" id="btn-autofill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/></svg>Auto-fill remaining slots</button></div>
+        <div class="chips" id="chips"></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8590a8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Search all electives by code or name (e.g. robot, web, SE 44)"></div>
+        <div class="toggle" id="tg-fit"><span class="sw"></span>Fits my timetable</div>
+        
+        <div class="toggle" id="tg-term"><span class="sw"></span>Counts this term</div>
+        <span class="count" id="count"></span>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+
+    <div id="pg-data" class="page hidden">
+      <div class="ph"><div><h2>Import my data</h2><p>Drop the two PDFs you download from OBS. Everything is read in this browser tab; nothing is uploaded and no password is needed.</p></div></div>
+      <div class="panel">
+        <label class="drop" id="drop"><input type="file" id="file" accept="application/pdf" multiple hidden><b>Drop your PDFs here</b> or click to choose<br><span style="color:var(--ink2);font-size:12.5px">Transcript (Transkript) · Curriculum status form (Müfredat Durum Formu). The file type is detected automatically.</span></label>
+        <div class="chips" id="data-chips"></div><ul class="dlog" id="data-log"></ul>
+        <p style="color:var(--ink2);font-size:13px">The Fall 2026–27 course list (engineering and shared courses) is built in. To use another department, also drop the university's “Açılan Dersler” PDF. A future official API would plug in as another data source without changing the rules or this interface.</p>
+        <div style="display:flex;gap:10px;margin-top:12px"><button class="btn btn-ghost" id="btn-demo-again">Back to demo student</button><button class="btn btn-ghost" id="btn-wipe" style="color:var(--bad)">Delete my data</button></div>
+      </div>
+    </div>
+
+    <div id="pg-sheet" class="page hidden"><div class="sheet-wrap"><div class="fn">⬇ elective-plan.png</div><img id="sheet-img" alt="Elective plan"></div></div>
+  </main>
+</section>
+
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer"></div>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+<div class="disclaimer">Course project prototype · not the official Yaşar University system</div>
+
+<script>
+/* ===== CORE: parsers + rules (no DOM; runs in browser and Node) ===== */
+const GRADE_RE = /^(T|AA|A-?|B[+-]?|C[+-]?|D[+-]?|F|FF|U|S|W|NA|M|I|--)$/;
+const GRADE_PTS = { 'A':4,'A-':3.7,'B+':3.3,'B':3,'B-':2.7,'C+':2.3,'C':2,'C-':1.7,'D+':1.3,'D':1,'F':0,'FF':0,'U':0 };
+const RETAKE_OK = new Set(['C-','D+','D','F','FF','U']);   // official: C-/D+/D can be repeated; F/U must be
+const FAIL = new Set(['F','FF','U']);
+const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+const CODE = '[A-Z]{2,5} ?\\d{3,4}';
+const normCode = s => s.replace(/^([A-Z]+)\s?(\d+)$/, '$1 $2');
+const num = s => parseFloat(String(s).replace(',', '.'));
+const hm = s => { const m = /(\d{1,2}):(\d{2})/.exec(s); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+const fmt = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+
+/* items: [{x,y,str}] of ONE page -> [{y, cells:[{x,s}], text}] top-to-bottom */
+function itemsToLines(items) {
+  const its = items.filter(i => i.str && i.str.trim()).sort((a, b) => b.y - a.y || a.x - b.x);
+  const lines = [];
+  for (const it of its) {
+    const L = lines.find(l => Math.abs(l.y - it.y) <= 2);
+    if (L) L.cells.push({ x: it.x, s: it.str.trim() }); else lines.push({ y: it.y, cells: [{ x: it.x, s: it.str.trim() }] });
+  }
+  lines.sort((a, b) => b.y - a.y);
+  for (const l of lines) { l.cells.sort((a, b) => a.x - b.x); l.text = l.cells.map(c => c.s).join(' ').replace(/\s+/g, ' '); }
+  return lines;
+}
+
+/* ---------- Transcript ---------- */
+function parseTranscript(pages) {
+  const terms = []; let cur = null, gno = null, totalAkts = null;
+  const rowRe = new RegExp('^(' + CODE + ') (.+?)(?: (' + CODE + '))? (T|AA|A-?|B[+-]?|C[+-]?|D[+-]?|F|FF|U|S|W|NA|M|I) (\\d+) ([\\d,]+)$');
+  for (const lines of pages) for (const { text: t } of lines) {
+    let m;
+    if ((m = t.match(/^(\d{4}-\d{4}) (Güz|Bahar|Yaz)$/i))) { cur = { name: m[1] + ' ' + m[2], kind: 'term', courses: [] }; terms.push(cur); continue; }
+    if ((m = t.match(/^(\d{4}-\d{4}) .*Transfer/i))) { cur = { name: m[1] + ' Transfer', kind: 'transfer', courses: [] }; terms.push(cur); continue; }
+    if ((m = t.match(/^GNO ([\d,]+) Toplam Dönem AKTS (\d+)/))) { gno = num(m[1]); totalAkts = +m[2]; continue; }
+    if (cur && (m = t.match(rowRe))) cur.courses.push({ code: normCode(m[1]), name: m[2].trim(), grade: m[4], akts: +m[5] });
+  }
+  const best = {};                         // latest attempt per course
+  for (const tm of terms) for (const c of tm.courses) best[c.code] = { ...c, term: tm.name };
+  // GNO fallback (approximate)
+  if (gno == null) { let p = 0, a = 0; for (const c of Object.values(best)) if (c.grade in GRADE_PTS) { p += GRADE_PTS[c.grade] * c.akts; a += c.akts; } gno = a ? +(p / a).toFixed(2) : null; }
+  return { terms, gno, totalAkts, best };
+}
+
+/* ---------- Müfredat Durum Formu ---------- */
+function parseCurriculum(pages) {
+  const out = { gno: null, aktsDone: null, aktsTotal: null, sections: [], outside: [] };
+  let sec = null;
+  const slotRe = '(?:UNV ELECT SE\\d|UNV \\d\\d|ELECT SE [AB]\\d|ELECT [AB]\\d|' + CODE + ')';
+  const leftRe = new RegExp('^(' + slotRe + ') (.*?) ?(Z|S) (\\d+) (\\d+)$');
+  const rightRe = new RegExp('^(\\d\\d-\\d\\d[GBM]) (' + CODE + ')(?: (.*?))? ?(Z|S) (\\d+) (\\d+) (\\S+)$');
+  const outRe = new RegExp('^(\\d{4}-\\d{4}) (Güz|Bahar|Yaz) (' + CODE + ') (.+?) (\\d\\+\\d) (\\d+) (\\d+) (\\d) (Z|S) (.+?) (\\S+)$');
+  const mkRight = m => ({ group: m[1], code: normCode(m[2]), name: (m[3] || '').trim(), zs: m[4], krd: +m[5], akts: +m[6], grade: m[7] });
+  for (const lines of pages) for (const { text: t } of lines) {
+    let m;
+    if ((m = t.match(/Genel Not Ortalaması : ([\d,]+)/))) out.gno = num(m[1]);
+    if ((m = t.match(/Başarılan AKTS\/Toplam AKTS : (\d+) \/ (\d+)/))) { out.aktsDone = +m[1]; out.aktsTotal = +m[2]; }
+    if ((m = t.match(/^(\d)\. Sınıf (Güz|Bahar)$/))) { sec = { year: +m[1], sem: m[2], rows: [] }; out.sections.push(sec); continue; }
+    if (/^Müfredat Dışı/.test(t)) { sec = null; continue; }
+    if ((m = t.match(outRe))) { out.outside.push({ term: m[1] + ' ' + m[2], code: normCode(m[3]), name: m[4], akts: +m[7], grade: m[11] }); continue; }
+    if (!sec) continue;
+    if ((m = t.match(/^(\d\d-\d\d[GBM]) /)) && (m = t.match(rightRe))) { sec.rows.push({ left: null, right: mkRight(m) }); continue; }
+    const gi = t.search(/ \d\d-\d\d[GBM] /);
+    const L = (gi > 0 ? t.slice(0, gi) : t), R = gi > 0 ? t.slice(gi + 1) : null;
+    const lm = L.match(leftRe);
+    if (!lm) continue;
+    const isSlot = /^(UNV|ELECT)/.test(lm[1]);
+    const row = { left: { code: isSlot ? lm[1] : normCode(lm[1]), name: lm[2].replace(/\(\d+\)$/, '').trim(), zs: lm[3], krd: +lm[4], akts: +lm[5], slot: isSlot }, right: null };
+    if (R) { const rm = R.match(rightRe); if (rm) row.right = mkRight(rm); }
+    sec.rows.push(row);
+  }
+  // current term group = group of rows with grade '--'
+  const cnt = {};
+  for (const s of out.sections) for (const r of s.rows) if (r.right && r.right.grade === '--') cnt[r.right.group] = (cnt[r.right.group] || 0) + 1;
+  out.currentGroup = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  return out;
+}
+/* flatten curriculum -> {enrolled[], remaining[], done[]} */
+function curriculumStatus(cur) {
+  const enrolled = [], remaining = [], done = [];
+  for (const s of cur.sections) for (const r of s.rows) {
+    const where = s.year + '. Sınıf ' + s.sem;
+    const slotName = r.left ? (r.left.slot ? r.left.name + ' (' + r.left.code + ')' : null) : null;
+    if (!r.right) { remaining.push({ where, code: r.left.code, name: r.left.name, akts: r.left.akts, slot: r.left.slot, zs: r.left.zs }); continue; }
+    const c = { where, slot: slotName, code: r.right.code, name: r.right.name || (r.left && !r.left.slot ? r.left.name : ''), akts: r.right.akts, grade: r.right.grade, group: r.right.group, zs: r.right.zs, orphan: !r.left };
+    if (c.grade === '--' && c.group === cur.currentGroup) enrolled.push(c); else done.push(c);
+  }
+  for (const o of cur.outside) if (o.grade === '--') enrolled.push({ where: 'Müfredat dışı', slot: null, code: o.code, name: o.name, akts: o.akts, grade: '--', group: cur.currentGroup, zs: 'S' });
+  return { enrolled, remaining, done };
+}
+
+/* ---------- Opened-courses PDF ---------- */
+function parseOfferings(pages) {
+  const rows = [], codeRe = new RegExp('^' + CODE + '$');
+  for (const lines of pages) for (const l of lines) {
+    const c = l.cells; const code = c.find(x => x.x > 15 && x.x < 106 && codeRe.test(x.s));
+    if (!code) continue;
+    const sec = c.find(x => x.x < 15)?.s || '1';
+    const name = c.filter(x => x.x >= 106 && x.x < 360).map(x => x.s).join(' ');
+    const day = c.find(x => x.x >= 360 && x.x < 404)?.s, st = c.find(x => x.x >= 404 && x.x < 481)?.s, en = c.find(x => x.x >= 481)?.s;
+    rows.push({ sec, code: normCode(code.s), name, day, st: hm(st || ''), en: hm(en || '') });
+  }
+  const by = {};                          // code -> {name, sections:{sec:[blocks]}}
+  for (const r of rows) {
+    const o = by[r.code] = by[r.code] || { code: r.code, name: r.name, sections: {} };
+    const arr = o.sections[r.sec] = o.sections[r.sec] || [];
+    if (r.day != null && r.st != null) arr.push({ d: DAYS.indexOf(r.day), s: r.st, e: r.en });
+  }
+  for (const o of Object.values(by)) for (const sec in o.sections) {   // merge consecutive hours
+    const b = o.sections[sec].filter(x => x.d >= 0).sort((a, b) => a.d - b.d || a.s - b.s), m = [];
+    for (const x of b) { const p = m[m.length - 1]; if (p && p.d === x.d && x.s - p.e <= 15) p.e = Math.max(p.e, x.e); else m.push({ ...x }); }
+    o.sections[sec] = m;
+  }
+  return by;
+}
+
+/* ---------- Rules ---------- */
+const overlap = (a, b) => a.d === b.d && a.s < b.e && b.s < a.e;
+const aktsCap = gno => (gno != null && gno < 2 ? 32 : 40);
+const isStaj = c => /STAJ/i.test(c.name || '') || /^[A-Z]+ 48[03]\d$/.test(c.code) && /STAJ/i.test(c.name || '');
+/* plan: [{code,name,akts,sec,blocks,kind?}]  profile: {gno,best} */
+function checkPlan(plan, profile) {
+  const msgs = [], clashes = [];
+  const cap = aktsCap(profile.gno);
+  const counted = plan.filter(c => !isStaj(c));
+  const total = counted.reduce((s, c) => s + (+c.akts || 0), 0);
+  if (total > cap) msgs.push({ lv: 'err', t: `AKTS ${total}/${cap}: üst sınırı aşıyor (ortalama ${profile.gno ?? '?'} ${profile.gno < 2 ? '< 2,00 → sınır 32' : '≥ 2,00 → sınır 40'}).` });
+  else if (total < 20) msgs.push({ lv: 'warn', t: `AKTS ${total}: alt sınır 20'nin altında (staj sayılmaz).` });
+  else msgs.push({ lv: 'ok', t: `AKTS ${total}/${cap}: sınırlar içinde (staj AKTS'ye sayılmaz).` });
+  const exempt = c => { const p = profile.best?.[c.code]; return p && FAIL.has(p.grade); };
+  for (let i = 0; i < plan.length; i++) for (let j = i + 1; j < plan.length; j++) {
+    const a = plan[i], b = plan[j];
+    if (exempt(a) || exempt(b)) continue;                     // F/U tekrarlarında çakışma serbest
+    for (const x of a.blocks || []) for (const y of b.blocks || []) if (overlap(x, y)) {
+      clashes.push([a.code, b.code, x.d, Math.max(x.s, y.s), Math.min(x.e, y.e)]);
+      msgs.push({ lv: 'err', t: `Çakışma: ${a.code} ↔ ${b.code} (${DAYS[x.d]} ${fmt(Math.max(x.s, y.s))}–${fmt(Math.min(x.e, y.e))}).` });
+    }
+  }
+  for (const c of plan) {
+    const p = profile.best?.[c.code];
+    if (p && p.grade !== '--' && !FAIL.has(p.grade) && p.grade !== 'T' && !RETAKE_OK.has(p.grade) && /^[A-D]/.test(p.grade) && !c.upgrade)
+      msgs.push({ lv: 'warn', t: `${c.code}: zaten ${p.grade} ile geçilmiş; yalnız C-, D+, D tekrar alınabilir.` });
+    else if (p && RETAKE_OK.has(p.grade) && !FAIL.has(p.grade)) msgs.push({ lv: 'info', t: `${c.code}: ${p.grade} notunu yükseltme (tekrar) olarak alınıyor.` });
+    else if (p && FAIL.has(p.grade)) msgs.push({ lv: 'info', t: `${c.code}: ${p.grade} tekrarı — çakışma kuralından muaf.` });
+    if (c.noOffer) msgs.push({ lv: 'warn', t: `${c.code}: bu dönemin açılan dersler listesinde yok.` });
+  }
+  return { total, cap, msgs, clashes };
+}
+/* candidate gate: does adding `course` to plan clash? */
+function clashWith(plan, cand, profile) {
+  const p = profile.best?.[cand.code]; if (p && FAIL.has(p.grade)) return null;
+  for (const c of plan) { const q = profile.best?.[c.code]; if (q && FAIL.has(q.grade)) continue;
+    for (const x of c.blocks || []) for (const y of cand.blocks || []) if (overlap(x, y)) return c.code; }
+  return null;
+}
+
+
+/* Public data: Yaşar Üniversitesi 2026-2027 Güz "Açılan Dersler" (oim.yasar.edu.tr), engineering + shared courses.
+   Line format: CODE|NAME|secs:day,startMin,endMin;...  (day 0=Pazartesi … 6=Pazar; "1+2:" = sections sharing the same hours) */
+const OFFERINGS_TERM = '2026-2027 Güz';
+const OFFERINGS_DATA = `CE 4101|YAPISAL TASARIM:BETONARME YAPILAR|1:4,520,690
+CE 3107|YAPISAL ANALİZE GİRİŞ|1:0,580,690;3,520,630
+CE 3105|HİDROMEKANİK|1:1,520,630;4,700,810
+CE 3103|ZEMİN MEKANİĞİ|1:1,760,870;2,700,810
+CE 3101|ULAŞTIRMA MÜHENDİSLİĞİNE GİRİŞ|1:2,520,690
+CE 2107|MÜHENDİSLİK MEKANİĞİ I: STATİK|1:3,760,870;4,520,630
+CE 2105|MÜHENDİSLİK MEKANİĞİ II: DİNAMİK|1:0,700,810;3,700,750
+CE 2101|MALZEME BİLİMİNİN TEMELLERİ|1:4,820,990
+CE 4910|MEZUNİYET TASARIM PROJESİ I|1+2+3+4:0,700,810;5,520,690
+CE 4851|ENDÜSTRİYEL DENEYİM I|1:5,760,1050
+CE 4119|TAŞKIN RİSK YÖNETİMİ|1:2,520,690;4,1000,1050
+CE 4115|ÖZEL BETONLAR|1:3,640,810
+CE 4109|GEOTEKNİK DEPREM MÜHENDİSLİĞİNE GİRİŞ|1:1,880,1050
+CHEM 1030|KİMYA|1:1,520,630;3,760,870/2:1,520,630;2,820,930
+BIO 1030|BİYOLOJİ|1:0,640,750;0,880,990/2:0,640,750;3,640,750
+COMP 2233|VERİ YAPILARI|1:0,820,990;1,700,810/2:3,940,1110;4,760,870
+COMP 1202|AYRIK HESAPLAMA YAPILARI|1:4,640,750;4,880,990/2:4,760,870;4,1000,1110
+COMP 3910|BİREYSEL ARAŞTIRMA I|1+2+3+4+5+6:5,760,870
+COMP 3330|OTOMATLAR KURAMI|1:2,700,870/2:3,760,930
+COMP 3327|BİLGİSAYAR AĞLARI|1:0,580,690;2,1000,1110/2:1,700,810;4,700,810
+COMP 3315|BİLGİSAYAR ORGANİZASYONU|1:1,940,1110;2,760,870/2:0,820,930;4,940,1110
+COMP 4910|MEZUNİYET TASARIM PROJESİ I|1+2+3+4+5+6+7:4,580,630;5,520,750
+COMP 4852|ENDÜSTRİYEL DENEYİM II|1:
+COMP 4851|ENDÜSTRİYEL DENEYİM I|1:
+COMP 4801|STAJ|1:
+COMP 4462|VERİ MADENCİLİĞİ|1:4,640,810
+COMP 4444|DERİN ÖĞRENME|1:4,880,1050
+COMP 4441|SİBER GÜVENLİK|1:1,640,810
+COMP 4439|BİLGİSAYAR AĞ PROGRAMLAMA|1:2,880,1050
+COMP 4360|GÖRÜNTÜ İŞLEME|1:3,520,690
+COMP 4350|MAKİNE ÖĞRENMESİNE GİRİŞ|1:1,940,1110
+EEE 2280|ELEKTRİK DEVRELERİ VE SİSTEMLERİ|1:1,700,810;4,760,930/2:1,820,930;4,760,930
+EEE 2274|ELEKTRONİĞİN TEMELLERİ|1:1,820,990;4,520,630/2:2,820,990;4,1000,1110
+EEE 2110|SAYISAL TASARIM|1:0,580,690;2,640,750/2:1,640,750;2,520,630/3:0,880,990;2,820,930
+EEE 2022|DEVRE TEORİSİ II|1:0,700,870;1,580,690
+EEE 2011|DEVRE TEORİSİ I|1:3,640,810;4,640,750/2:3,880,1020;4,820,930
+EEE 4122|ENDÜSTRİYEL OTOMASYON|1:1,880,1050;4,520,630/2:1,880,1050;4,640,750
+EEE 3718|GERİ BESLEME SİSTEMLERİ|1:0,640,810;3,580,690/2:1,700,870;3,700,810
+EEE 3615|ELEKTROMEKANİK ENERJİ DÖNÜŞÜMÜ|1:0,520,690;4,640,750/2:1,520,690;4,760,870
+EEE 3513|SİNYALLER VE SİSTEMLER|1:0,700,870;3,880,990/2:1,760,930;3,760,870
+EEE 3435|DİJİTAL ELEKTRONİK|1:4,580,750/2:4,880,1050
+EEE 4661|YÜKSEK GERİLİM SİSTEMLERİ|1:2,820,990
+EEE 4531|DİJİTAL İŞARET İŞLEME|1:2,640,750;3,520,630
+EEE 4340|ANTENLER VE PROPAGASYON|1:0,640,810;3,880,990
+ENGR 1115|PROGRAMLAMAYA GİRİŞ|1:1,640,750;2,520,630/2:1,520,630;4,520,630/3:1,760,870;3,520,630/4:0,580,690;4,640,750/5:0,700,810;3,640,750/6:0,820,930;2,700,810
+ENGR 4451|MÜHENDİSLİK UYGULAMALARI İÇİN ÜRETKEN YAPAY ZEKA|1:4,700,870
+ENGR 4411|SÜRDÜRÜLEBİLİR KALKINMA İÇİN MÜHENDİSLİK|1:0,820,930
+ENGR 4400|MÜHENDİSLİK ETİĞİ VE SEMİNER|1:1,640,750/2:2,640,750
+ENGR 3450|PROJE YÖNETIMI|1:2,880,1050/2:2,940,1110/3+4:3,880,1050
+ENGR 2120|BİLGİSAYAR DESTEKLİ MODELLEMEYE GİRİŞ|1:0,520,630;2,640,750/2:0,640,750;2,520,630/3:0,760,990
+ESE 4851|ENDÜSTRİYEL DENEYİM I|1:5,520,870
+ESE 4240|YENİLENEBİLİR ENERJİ SİSTEMLERİNİN ENTEGRASYONU|1:2,820,990
+ESE 4212|ENERJİ DEPOLAMA SİSTEMLERİ|1:1,880,1050
+ESE 4112|ISITMA HAVALANDIRMA İKLİMLENDİRME VE SOĞUTMA SİSTEMLERİ|1:1,520,690
+ESE 3504|AKILLI ENERJİ SİSTEMLERİ|1:3,880,1050
+ESE 3260|RÜZGAR ENERJİSİ SİSTEMLERİ|1:2,880,1050
+HIST 1210|ATATÜRK İLKELERİ VE İNKILAP TARİHİ II|1:2,1120,1230
+HIST 1120|ATATÜRK İLKELERİ VE İNKILAP TARİHİ I|1:2,1240,1350
+HIST 1110|ATATÜRK İLKELERİ VE İNKILAP TARİHİ I|1:3,1240,1350/2:0,1240,1350/3:1,1240,1350/4:4,1240,1350
+IE 2531|MÜHENDİSLER İÇİN OLASILIK|1:2,640,750;4,520,630/2:3,640,750;4,640,750
+IE 2511|MÜHENDİSLİKTE MALİYET ANALİZİ|1:0,520,690/2:1,520,690
+IE 2501|MÜHENDİSLİK VE YÖNEYLEM ARAŞTIRMASINDA BİRİMLER VE BOYUT ANALİZİ|1:1,940,1050;3,760,870/2:1,940,1050;4,760,870
+IE 4531|TEDARİK ZİNCİRİ PLANLAMASI VE OPTİMİZASYONU|1:3,880,1050
+IE 3554|STOKASTİK YÖNEYLEM ARAŞTIRMASI|1:1,940,1050;4,760,870
+IE 3553|DETERMİNİSTİK YÖNEYLEM ARAŞTIRMASI|1:0,640,750;4,520,630/2:0,820,930;4,640,750
+IE 3523|ÜRETİM VE SERVİS SİSTEMLERİ PLANLAMASI|1:0,520,630;4,760,870/2:1,520,630;4,880,990
+IE 3513|KALİTE GÜVENCESİ VE GÜVENİLİRLİK|1:0,940,1050;3,520,630/2:1,820,930;3,640,750
+IE 3511|SİSTEM BENZETİMİ|1:2,760,870;4,640,750
+IE 2552|YÖNEYLEM ARAŞTIRMASINDA MODELLEME|1:1,520,630;3,520,630
+IE 4810|YÖNEYLEM ARAŞTIRMASINDA ÖZEL KONULAR|1:2,520,690
+IE 4581|MÜHENDİSLİK EKONOMİSİNDE İLERİ UYGULAMALAR|1:4,880,1050
+IE 4574|ENDÜSTRİ MÜHENDİSLİĞİ PROBLEMLERİ İÇİN YAZILIM UYGULAMALARI|1:1,880,1050
+IE 4572|SÜRDÜRÜLEBILIR SİSTEM MÜHENDİSLİĞİ|1:4,880,1050
+IE 4561|PERFORMANS DEĞERLENDİRMESİ VE YÖNETİMİ|1:4,820,990
+IE 4557|SEZGİSEL OPTİMİZASYON|1:0,940,1110
+IE 4555|RASSAL MODELLERDE ENDÜSTRİ MÜHENDİSLİĞİ UYGULAMALARI|1:1,700,870
+IE 4544|İNSAN FAKTÖRLERİ MÜHENDİSLİĞİ|1:0,640,810
+ISG 9210|İŞ SAĞLIĞI VE GÜVENLİĞİ II|1:2,1240,1350
+ISG 9120|İŞ SAĞLIĞI VE GÜVENLİĞİ I|1:2,1120,1230
+ISG 9110|İŞ SAĞLIĞI VE GÜVENLİĞİ I|1:2,1120,1230
+MATH 1100|MATEMATİKSEL MANTIK|1:1,760,870;4,880,990/2:0,700,810;1,880,990/3:0,700,810;3,640,750/4:3,760,870;4,1000,1110/5:3,880,990;4,1000,1110/6:0,820,930;3,1000,1110/7:0,940,1050;3,1000,1110
+MATH 1131|ANALİZ I|1:1,640,750;2,520,690/2:1,520,630;2,820,990/3:1,760,930;3,520,630/4:2,520,690;3,640,750/5:2,820,990;3,880,990/6:2,520,690;3,820,930/7:2,820,990;4,520,630/8:3,520,690;4,640,750
+MATH 2230|MÜHENDİSLİKTE HESAPLAMA YÖNTEMLERİ|1:1,520,630;4,640,750
+MATH 2200|İSTATİSTİKSEL ANALİZ|1:1,700,810;2,700,810
+MATH 1132|ANALİZ II|1:0,520,690;1,820,930/2:0,820,990;2,760,870/3:1,520,690;2,880,990
+MATH 2261|DİFERANSİYEL DENKLEMLERE GİRİŞ|1:2,520,690/2:3,820,990
+MATH 2260|MÜHENDİSLER İÇİN OLASILIK VE İSTATİSTİK|1:0,520,690;2,880,990/2:0,820,990;3,520,630/3:2,520,690;3,640,750
+MATH 2259|MÜHENDİSLİK MATEMATİĞİ|1:1,760,930;4,520,630
+MATH 2255|DOĞRUSAL CEBİR|1:0,520,690;1,820,930/2:0,820,990;2,520,630/3:1,520,690;2,640,750
+MATH 3305|OLASILIK VE RASSAL SÜREÇLER|1:0,880,1050;3,640,750/2:2,640,810;3,520,630
+MATH 2263|DİFERANSİYEL DENKLEMLER VE DİNAMİK SİSTEMLER|1:0,880,990;2,820,990/2:2,520,630;2,820,990/3:2,640,750;3,520,690/4:2,520,630;3,520,690
+ME 2710|MALZEME BİLİMİ|1:0,1000,1110;1,940,1050/2:2,640,750;2,880,990
+ME 2320|TERMODİNAMİK|1:1,760,930;3,760,870
+ME 2210|MÜHENDİSLİK MEKANİĞİ I|1:0,820,930;4,520,630/2:3,640,750;4,700,810
+ME 4910|MEZUNİYET TASARIM PROJESİ I|1+3:3,760,810;5,520,750/2+4:3,760,810;5,760,990/5+7:3,760,810;6,520,750/6+8:3,760,810;6,760,990
+ME 4851|ENDÜSTRİYEL DENEYİM I|1:5,520,870
+ME 4610|MEKATRONİK MÜHENDİSLİĞİNE GİRİŞ|1:1,520,690
+ME 4340|TURBOMAKİNELERE GİRİŞ|1:3,880,1050
+ME 4330|HESAPLAMALI AKIŞKANLAR DİNAMİĞİNE GİRİŞ|1:3,520,690
+ME 4240|ROBOT MEKANİĞİNE GİRİŞ|1:1,760,930
+ME 3420|ÜRETİM YÖNTEMLERİ VE PROSESLERİ|1:2,520,630;4,640,750
+ME 3320|ISI VE KÜTLE TRANSFERİ|1:0,820,990;4,520,630/2:2,640,810;4,880,990
+ME 3220|MÜHENDİSLİK MEKANİĞİ II|1:1,520,630;4,760,870
+PHYS 1121|FİZİK I|1:1,640,810;2,580,690/2:1,640,810;3,760,870/3:1,580,750;3,640,750/4:1,580,750;4,880,990/5:1,880,1050;3,520,630/6:1,880,1050;4,880,990/7:1,880,1050;3,1000,1110/8:1,880,1050;4,760,870/9:2,520,690;3,880,990/10:2,520,690;4,760,870/11:2,880,1050;4,520,630/12:2,880,1050;3,760,870/13:2,700,870;4,640,750/14:1,640,810;2,700,810/15:1,640,810;2,940,1050/16:1,880,1050;2,820,930/17:1,880,1050;2,940,1050
+SE 2217|YAZILIM MÜHENDİSLİĞİ İLKELERİ|1:0,700,810;2,880,990/2:1,700,810;3,880,990
+SE 1105|PROGRAMLAMA VE PROBLEM ÇÖZME I|1:0,520,690;4,760,870/2:1,640,810;4,880,990/3:1,940,1110;3,1000,1110/4:3,760,930;4,1000,1110
+SE 2310|VERİ YAPILARI VE ALGORİTMALAR|1:2,760,870;3,520,690/2:2,880,990;4,520,690
+SE 2230|VERİ TABANI SİSTEMLERİ|1:0,700,810;3,700,810/2:0,1000,1110;4,820,930
+SE 2228|ALGORİTMA ANALİZİ VE TASARIMI|1+2:1,580,690;4,640,750/3:1,820,930;4,640,750/4:1,820,930;4,880,990/5+6:3,760,870;4,880,990
+SE 4488|PEKİŞTİRMELİ ÖĞRENMEYE GİRİŞ|1:2,640,810
+SE 4462|GÜVENLİ YAZILIM TASARIMI VE PROGRAMLAMA|1:2,880,1050
+SE 4458|BÜYÜK ÖLÇEKLİ SİSTEMLER İÇİN SİSTEM MİMARİSİ|1:3,700,870
+SE 4453|YAZILIM DEĞİŞİKLİĞİ, YAPILANDIRMA VE SÜRÜM YÖNETİMİ|1:1,640,810
+SE 3368|ESNEK HESAPLAMA|1:1,520,690
+SE 3355|WEB PROGRAMLAMA|1:3,760,930
+SE 3317|YAZILIM TASARIMI VE MİMARİSİ|1:0,700,810;4,520,630/2:1,700,810;4,640,750
+SE 3310|İŞLETİM SİSTEMLERİ VE AĞLAR|1:1,880,990;2,700,870/2:1,700,870;1,1000,1110
+SE 4910|MEZUNİYET PROJESİ I|1+2+3+4+5+7+8:6,520,870/6:6,510,860
+SE 4852|ENDÜSTRİYEL DENEYİM II|1:5,520,870
+SE 4851|ENDÜSTRİYEL DENEYİM I|1:2,520,870
+SE 4830|STAJ|1:
+SE 4810|YAZILIM MÜHENDİSLİĞİNDE ÖZEL KONULAR|1:3,940,1110
+SE 4491|BİYOİNFORMATİĞE GİRİŞ|1:0,520,690
+SOFL 1101|AKADEMİK İNGİLİZCE I|1+55:0,520,630;2,520,630/2+21+30+36+40+49:1,520,630;4,520,630/3+37+50:1,820,930;3,760,870/4+15+23:2,820,930;4,640,750/5+43+51:0,520,630;2,820,930/6+20+44+52:0,640,750;3,760,870/7+11+22+31+41+45:1,820,930;3,880,990/8+19+34+38+42:2,520,630;4,640,750/9+10+18:1,520,630;3,760,870/12+26:1,520,630;3,880,990/13:0,520,630;4,520,630/14+29:0,640,750;2,520,630/16+32+35+47:0,520,630;3,880,990/17+25+39+48:0,640,750;2,820,930/24+28:0,520,630;3,760,870/27+53:1,820,930;4,640,750/33:1,820,930;4,520,630/46+54:2,520,630;4,520,630/56:0,640,750;3,880,990/57:1,520,630;4,640,750/58:2,820,930;4,520,630
+SOFL 1102|AKADEMİK İNGİLİZCE II|1+9:1,820,930;3,760,870/2:1,820,930;4,520,630/3:1,520,630;4,520,630/4:0,520,630;2,520,630/5:2,820,930;4,640,750/6:1,520,630;3,880,990/7:0,520,630;3,760,870/8:1,820,930;3,880,990/10:0,640,750;2,820,930/11:2,520,630;4,640,750/12:0,640,750;3,880,990/13:2,520,630;4,520,630/14:1,520,630;4,640,750
+UFND 2010|ARAŞTIRMA KÜLTÜRÜ|1:1,1120,1230
+UFND 1810|BİLİMSEL AKIL YÜRÜTME|1:3,1120,1230
+UFND 1520|ÇEŞİTLİLİK ÇALIŞMALARI|1:2,760,870
+TURK 1210|TÜRK DİLİ II|1:4,1240,1350
+TURK 1120|TÜRK DİLİ I|1:1,760,870
+TURK 1110|TÜRK DİLİ I|1:0,1120,1230/2:0,1240,1350/3:4,1120,1230/4:3,1240,1350
+UFND 4320|KENTSEL SORUNLARA DOĞA ESASLI ÇÖZÜMLER|1:1,1240,1350
+UFND 4310|KENTSEL SORUNLARA DOĞA ESASLI ÇÖZÜMLER|1:1,1120,1230
+UFND 4020|ESTETİK KÜLTÜRÜ|1:0,1240,1350
+UFND 4010|ESTETİK KÜLTÜRÜ|1:0,1120,1230
+UFND 3420|SİNİRBİLİM VE NÖROFELSEFE|1:4,1240,1350
+UFND 3410|SİNİRBİLİM VE NÖROFELSEFE|1:4,1120,1230
+UFND 3320|ELEŞTİREL DÜŞÜNME BECERİLERİ|1:2,1240,1350
+UFND 3310|ELEŞTİREL DÜŞÜNME BECERİLERİ|1:2,1120,1230
+UFND 3220|SOSYAL ETKİ TASARIMI|1:2,1240,1350
+UFND 3210|SOSYAL ETKİ TASARIMI|1:2,1120,1230
+UFND 3020|TASARIM KÜLTÜRÜ|1:3,1120,1230
+UFND 3010|TASARIM KÜLTÜRÜ|1:3,1240,1350
+UFND 2420|KİŞİLERARASI İLİŞKİLERİN TEMELLERİ|1:3,1240,1350
+UFND 2410|KİŞİLERARASI İLİŞKİLERİN TEMELLERİ|1:3,1120,1230
+UFND 2220|FUNDAMENTALS OF GAME DEVELOPMENT AND DESIGN|1:1,820,930
+UFND 2210|OYUN GELİŞTİRME VE TASARIMIN TEMELLERİ|1:1,940,1050
+UFND 2020|ARAŞTIRMA KÜLTÜRÜ|1:1,1240,1350
+UFND 7020|SOSYAL SORUMLULUK|1:1,1240,1350
+UFND 7010|SOSYAL SORUMLULUK|1:1,1120,1230
+UFND 6320|ÇEVRE VE KALKINMA|1:4,1240,1350
+UFND 6310|ÇEVRE VE KALKINMA|1:4,1120,1230
+UFND 6220|SÜRDÜRÜLEBİLİRLİK|1:1,1240,1350
+UFND 6210|SÜRDÜRÜLEBİLİRLİK|1:1,1120,1230
+UMFD 1720|KARİYER PLANLAMA|1:2,1240,1350/2:2,1120,1230
+UMFD 1710|KARİYER PLANLAMA|1:2,1120,1230
+UMFD 1020|ELEŞTİREL VE ANALİTİK DÜŞÜNMENİN TEMELLERİ|1:4,1120,1230/2:4,1240,1350
+UMFD 1010|ELEŞTİREL VE ANALİTİK DÜŞÜNMENİN TEMELLERİ|1:3,1120,1230`;
+function parseEmbedded(text) {
+  const by = {};
+  for (const line of text.split('\n')) {
+    const [code, name, secs] = line.split('|'); if (!code) continue;
+    const o = by[code] = { code, name, sections: {} };
+    for (const grp of (secs || '').split('/')) {
+      const i = grp.indexOf(':'), ids = grp.slice(0, i).split('+'), bl = grp.slice(i + 1);
+      const blocks = bl ? bl.split(';').map(x => { const [d, s, e] = x.split(',').map(Number); return { d, s, e }; }) : [];
+      for (const id of ids) o.sections[id] = blocks.map(b => ({ ...b }));
+    }
+  }
+  return by;
+}
+
+/* ===================== CATALOG (course metadata: pools, interest tags, prerequisites, descriptions) ===================== */
+// Pools/tags/descriptions: Yaşar SE 2025-26 Bologna listing. Timetables come from the official Fall 2026-27 list (see data.js).
+const RAW = `
+COMP 4350|Introduction to Machine Learning|6|A|ai||MATH 2260,SE 2310|Supervised and unsupervised learning, model evaluation and practical ML pipelines in Python.
+COMP 4435|Introduction to Artificial Intelligence|6|A|ai||SE 2228|Search, knowledge representation, planning and reasoning under uncertainty.
+COMP 4444|Deep Learning|6|A|ai||MATH 2255,MATH 2260|Neural network architectures, training at scale, CNNs, RNNs and transformers.
+COMP 4462|Data Mining|6|A|ai||SE 2230,MATH 2260|Finding patterns in large datasets: clustering, association rules and classification.
+COMP 4441|Cybersecurity|6|A|sec||SE 3310|Threats, defenses, cryptography basics and secure system operation.
+COMP 4355|Computer Network Security|6|A|sec||SE 3310|Securing network protocols, firewalls, intrusion detection and VPNs.
+COMP 4433|Cloud Computing|6|A|arch||SE 3310|Virtualization, containers, cloud service models and deploying to the cloud.
+COMP 4460|Game Programming|6|A|games||SE 3318|Game loops, physics, engines and building a playable game in a team.
+COMP 4431|Computer Graphics|6|A|games||MATH 2255|Rendering pipeline, transformations, shading and real-time graphics with OpenGL.
+COMP 4340|Introduction to Robot Science|6|A|robo||MATH 2255|Kinematics, sensors and control fundamentals for robotic systems.
+EEE 4451|Introduction to Sensor Networks|6|A|robo||SE 3310|Wireless sensor nodes, data collection and energy-aware networking.
+SE 3306|Human-Computer Interaction|6|A|ux||SE 3355|Designing and evaluating interactive systems around real users.
+SE 3315|Software Project Management|6|A|mgmt||SE 2226|Planning, estimation, risk and team management for software projects.
+SE 3352|Agile Software Engineering|6|A|mgmt||SE 3318|Scrum, Kanban, user stories and continuous delivery in practice.
+SE 3356|Database Design and Implementation|6|A|ai,arch||SE 2230|Advanced schema design, indexing, transactions and query optimization.
+SE 3358|User Interface Design|6|A|ux,web||SE 3355|Visual design, prototyping and usability testing of user interfaces.
+SE 4406|Mobile Robotics Programming|6|A|robo||SE 3332|Programming mobile robots with ROS: localization, mapping and navigation.
+SE 4456|Object-Oriented Design Patterns|6|A|arch||SE 3317|Gang-of-Four patterns and how to apply them in real code bases.
+SE 4458|System Architecture for Large-Scale Systems|6|A|arch||SE 3317|Scalability, distributed architectures, caching and microservices.
+SE 4462|Secure Software Design and Programming|6|A|sec||SE 3318|Writing code that resists attacks: threat modeling, OWASP, secure coding.
+SE 4467|Applied Internet of Things|6|A|robo||SE 3310,SE 3332|Building connected devices end to end, from sensors to cloud dashboards.
+SE 4468|Scalable Web Programming|6|A|web,arch||SE 3355|Building web back ends that scale: APIs, queues, caching and load.
+SE 4475|Introduction to Natural Language Processing|6|A|ai||SE 2310|Text processing, language models and NLP applications.
+SE 4481|Mobile Software Development|6|A|web||SE 3355|Native and cross-platform mobile app development.
+SE 4483|Business Intelligence Systems|6|A|ai,soc||SE 2230|Data warehouses, dashboards and decision support for organizations.
+SE 4486|AI for Games|6|A|games,ai||SE 2228|Pathfinding, decision making and learning agents in games.
+SE 4488|Introduction to Reinforcement Learning|6|A|ai,robo||MATH 2260|Agents that learn by trial and error: MDPs, Q-learning, policy gradients.
+SE 4489|Multi-Robot Systems|6|A|robo||SE 3332|Coordination, swarm behaviour and communication among multiple robots.
+SE 4490|Introduction to Deep Learning|6|A|ai||MATH 2255,MATH 2260|Practical deep learning with modern frameworks.
+SE 3355|Web Programming|6|A|web|||Front-end and back-end web development.
+SE 3353|Critical Systems Engineering|6|A|arch||SE 2226|Engineering safety- and mission-critical software.
+SE 3360|Agent-Based Simulation|6|A|ai||SE 2310|Modelling complex systems with interacting agents.
+SE 3362|E-Commerce|6|A|web,soc||SE 3355|Technology and business models of online commerce.
+SE 3375|Programming Language Concepts|6|A|arch||SE 1108|Paradigms, type systems and language implementation.
+SE 4452|Management Information Systems|6|A|mgmt,soc||SE 2230|Information systems in organizations.
+SE 4453|Software Change, Configuration and Release Management|6|A|mgmt||SE 3318|Version control, CI/CD and release processes.
+SE 4454|Software Metrics|6|A|mgmt||SE 2226|Measuring software size, quality and productivity.
+SE 4455|Distributed Software Engineering|6|A|arch||SE 3310|Designing software that runs across machines.
+SE 4457|Formal Methods and Models in Software Engineering|6|A|arch||COMP 1202|Specifying and verifying software mathematically.
+SE 4460|Component-Based Software Development|6|A|arch||SE 3317|Building systems from reusable components.
+SE 4461|Reusable Software Architectures|6|A|arch||SE 3317|Frameworks, product lines and architectural reuse.
+SE 4463|Multimedia Information Systems|6|A|web||SE 2230|Storing and retrieving images, audio and video.
+SE 4464|Geographic Information Systems|6|A|ai||SE 2230|Spatial data, maps and location-based analysis.
+SE 4465|Web Engineering|6|A|web||SE 3355|Engineering large web applications.
+SE 4491|Introduction to Bioinformatics|6|A|ai||SE 2310|Algorithms for biological sequence data.
+SE 4492|Introduction to Metaheuristic Algorithms|6|A|ai||SE 2228|Genetic algorithms, simulated annealing and more.
+COMP 4318|Distributed Systems|6|A|arch||SE 3310|Consistency, replication and fault tolerance.
+COMP 4360|Image Processing|6|A|ai||MATH 2255|Filtering, segmentation and feature extraction.
+COMP 4437|Artificial Neural Networks|6|A|ai||MATH 2255|Perceptrons, backpropagation and network design.
+COMP 4439|Computer Network Programming|6|A|sec||SE 3310|Sockets and network protocol programming.
+COMP 4442|Data Warehouses|6|A|ai||SE 2230|Dimensional modelling and ETL.
+COMP 4480|Introduction to Intelligent and Autonomous Systems|6|A|robo,ai||SE 3332|Autonomy, perception and decision making.
+ME 4240|Introduction to Robot Mechanics|6|B|robo||MATH 2255|Mechanics of robot arms: kinematics, dynamics and actuation.
+ME 4610|Introduction to Mechatronics Engineering|6|B|robo||EEE 2110|Combining mechanics, electronics and software.
+ENGR 4451|Generative AI for Engineering Applications|6|B|ai||MATH 2260|Using generative models to solve engineering problems.
+EEE 4540|Image and Video Processing|6|B|ai||MATH 2255|Processing and analysing images and video streams.
+EEE 4531|Digital Signal Processing|6|B|ai||MATH 2255|Sampling, filtering and spectral analysis.
+IE 4553|Combinatorial Optimization|6|B|ai||SE 2228|Optimization over discrete structures.
+IE 4554|Network Science and Applications|6|B|ai,soc||COMP 1202|Analysing complex networks.
+NMED 3555|Extended Reality|6|B|games||SE 3318|Designing VR and AR experiences.
+VCDS 3501|Creative Coding|6|B|games,ux||SE 1108|Code as a medium for visual design.
+VCDS 3509|Web Design I|6|B|web,ux||SE 3355|Visual design for the web.
+VCDS 4503|Introduction to 3D Animation|6|B|games|||Modelling and animating in 3D.
+NMED 0113|Introduction to Social Network Analysis|5|U|ai,soc|||Mapping and measuring social networks.
+BA 3010|Principles of Management|5|U|mgmt,soc|||How organizations are planned, led and controlled.
+PSYC 0100|Introduction to Psychology|5|U|soc|||Foundations of human behaviour and mind.
+ID 0450|Design Thinking|5|U|ux|||Human-centred problem solving.
+COMP 0375|Cybersecurity Awareness|5|U|sec|||Staying safe online.
+SCUL 0700|Social Entrepreneurship|5|U|soc|||Ventures that create social value.
+SOFL 1611|German I|4|U|soc|||Beginner German.
+SOFL 1621|Italian I|4|U|soc|||Beginner Italian.
+VCDS 0200|Introduction to Photography|5|U|ux|||Light, composition and the camera.
+`;
+const CATALOG = RAW.trim().split("\n").map(l => l.split("|")).map(p => ({ code: p[0], name: p[1], ects: +p[2], pool: p[3], tags: p[4] ? p[4].split(",") : [], builds: p[6] ? p[6].split(",") : [], desc: p[7] || "" }));
+const TOPICS = [
+  { id: "ai", label: "AI & Data" }, { id: "robo", label: "Robotics & IoT" }, { id: "web", label: "Web & Mobile" },
+  { id: "games", label: "Games & Graphics" }, { id: "sec", label: "Security & Networks" }, { id: "arch", label: "Architecture & Cloud" },
+  { id: "ux", label: "UX & Design" }, { id: "mgmt", label: "Process & Management" }, { id: "soc", label: "Business & Society" }
+];
+const GP = { AA: 4, BA: 3.5, BB: 3, CB: 2.5, CC: 2, DC: 1.5, DD: 1, ...GRADE_PTS };
+const POOLNAME = { A: "Dept. elective A", B: "Dept. elective B", F: "Field elective", U: "University" };
+const POOLCLS = { A: "tA", B: "tB", F: "tF", U: "tU" };
+const D3 = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/* ===================== DEMO STUDENT (fictional; same story as the first prototype) ===================== */
+const DEMO = {
+  label: "Demo Student", gpa: 3.12, ectsDone: "178 / 240", sem: "7 (Year 4)", cap: 40,
+  grades: { "MATH 2260": "AA", "SE 2230": "AA", "SE 2310": "BA", "SE 2228": "BB", "MATH 2255": "CB", "SE 3332": "BA", "SE 3310": "CC", "SE 3317": "BB", "SE 3318": "BA", "SE 3355": "BA", "SE 2226": "BB", "SE 1108": "AA", "COMP 1202": "BB" },
+  names: { "MATH 2260": "Probability and Statistics", "SE 2230": "Database Systems", "SE 2310": "Data Structures and Algorithms", "SE 2228": "Analysis and Design of Algorithms", "MATH 2255": "Linear Algebra", "SE 3332": "Low-Level Programming", "SE 3310": "Operating Systems and Networks", "SE 3317": "Software Design and Architecture", "SE 3318": "Software Construction", "SE 3355": "Web Programming", "SE 2226": "Software Quality Assurance and Testing", "SE 1108": "Programming and Problem Solving II", "COMP 1202": "Discrete Computational Structures" },
+  taken: ["SE 3355", "PSYC 0100"],
+  compulsory: [["ENGR 4411", "Engineering for Sustainable Development", 3], ["ISG 9210", "Occupational Health and Safety II", 2], ["SE 4910", "Graduation Project I", 8], ["UMFD 1720", "Career Planning", 2], ["SE 4830", "Internship", 4]],
+  slots: [
+    { id: "U1", label: "Univ. elective SE1", pool: "U", pools: ["U"], sem: 5, term: "done", ects: 5, courses: ["PSYC 0100"] },
+    { id: "A1", label: "Dept. elective A1", pool: "A", pools: ["A"], sem: 6, term: "done", ects: 6, courses: ["SE 3355"] },
+    { id: "F2", label: "Field elective A2", pool: "F", pools: ["A", "B"], sem: 7, term: "now", ects: 6, courses: [] },
+    { id: "A2", label: "Dept. elective A2", pool: "A", pools: ["A"], sem: 7, term: "now", ects: 6, courses: [] },
+    { id: "A3", label: "Dept. elective A3", pool: "A", pools: ["A"], sem: 7, term: "now", ects: 6, courses: [] },
+    { id: "B1", label: "Dept. elective B1", pool: "B", pools: ["B"], sem: 8, term: "plan", ects: 6, courses: [] },
+    { id: "B2", label: "Dept. elective B2", pool: "B", pools: ["B"], sem: 8, term: "plan", ects: 6, courses: [] },
+    { id: "U3", label: "Univ. elective SE3", pool: "U", pools: ["U"], sem: 8, term: "plan", ects: 9, courses: [] }
+  ]
+};
+
+/* ===================== STATE ===================== */
+const S = { early: [], interests: new Set(), fit: false, term: false, q: "", mode: null, tr: null, cur: null, off: null, chosen: null, log: null };
+let COURSES = [], C = {}, SLOTS = [], COMPULSORY = [], GRADES = {}, NAMES = {}, taken = new Set(), P = {}, MISSING = [];
+const KEY = "en_merged_v1";
+function persist() { try { localStorage.setItem(KEY, JSON.stringify({ mode: S.mode, tr: S.tr, cur: S.cur, interests: [...S.interests], chosen: Object.fromEntries(SLOTS.filter(s => s.term !== "done").map(s => [s.id, s.courses])), early: SLOTS.filter(s => s.early).map(s => s.id) })); } catch (e) { } }
+function restore() { try { const j = JSON.parse(localStorage.getItem(KEY) || "null"); if (j) { S.mode = j.mode; S.tr = j.tr; S.cur = j.cur; S.interests = new Set(j.interests || []); S.chosen = j.chosen || null; S.early = j.early || []; } } catch (e) { } }
+function wipeAll() { try { localStorage.removeItem(KEY); } catch (e) { } S.mode = null; S.tr = S.cur = S.off = S.chosen = null; S.log = null; S.interests = new Set(); location.reload(); }
+
+/* ===================== MODEL ===================== */
+const poolOf = code => { const c = CATALOG.find(x => x.code === code); if (c) return c.pool; const p = code.split(" ")[0]; return /^(UFND|UMFD|UNV)$/.test(p) ? "U" : /^(SE|COMP)$/.test(p) ? "A" : "B"; };
+const semOf = w => { const m = /(\d)\. Sınıf (Güz|Bahar)/.exec(w || ""); return m ? (+m[1]) * 2 - 1 + (m[2] === "Bahar" ? 1 : 0) : 0; };
+function slotMeta(code) {
+  let m;
+  if ((m = code.match(/^ELECT SE ([AB])(\d)$/))) return { pool: m[1], pools: [m[1]], label: `Dept. elective ${m[1]}${m[2]}` };
+  if ((m = code.match(/^ELECT ([AB])(\d)$/))) return { pool: "F", pools: ["A", "B"], label: `Field elective ${m[1]}${m[2]}` };
+  if ((m = code.match(/^UNV ELECT SE(\d)$/))) return { pool: "U", pools: ["U"], label: `Univ. elective SE${m[1]}` };
+  if ((m = code.match(/^UNV (\d\d)$/))) return { pool: "U", pools: ["U"], label: `Univ. elective ${m[1]}` };
+  return { pool: "A", pools: ["A"], label: code };
+}
+function mkCourse(code, name, ects, est) {
+  const base = CATALOG.find(x => x.code === code), o = S.offerings[code];
+  const secs = {}; if (o) for (const [k, v] of Object.entries(o.sections)) if (v.length) secs[k] = v;
+  return { code, name: name || base?.name || o?.name || code, ects: ects ?? base?.ects ?? 6, est: !!est && !base, pool: base?.pool || poolOf(code), tags: base?.tags || [], builds: base?.builds || [], desc: base?.desc || "", secs, offered: Object.keys(secs).length > 0, sec: null, t: [] };
+}
+function ensure(code, name, ects, est) { if (!C[code]) { C[code] = mkCourse(code, name, ects, est); COURSES.push(C[code]); } else { if (name && !C[code].name) C[code].name = name; } return C[code]; }
+function buildModel() {
+  S.offerings = S.off || parseEmbedded(OFFERINGS_DATA);
+  COURSES = []; C = {}; SLOTS = []; COMPULSORY = []; MISSING = [];
+  for (const b of CATALOG) ensure(b.code);
+  let compulsory = [], slots = [];
+  if (S.mode === "real" && S.cur) {
+    const st = S.cur.status, tr = S.tr?.best || {};
+    GRADES = {}; NAMES = {}; taken = new Set();
+    for (const [code, g] of Object.entries(tr)) { if (g.grade !== "--") { GRADES[code] = g.grade; NAMES[code] = g.name; if (!RETAKE_OK.has(g.grade)) taken.add(code); } }
+    P = { label: "Imported student", gpa: S.cur.gno ?? S.tr?.gno, ectsDone: S.cur.aktsDone != null ? `${S.cur.aktsDone} / ${S.cur.aktsTotal}` : "—", sem: S.cur.currentGroup ? "term " + S.cur.currentGroup : "—", cap: aktsCap(S.cur.gno ?? S.tr?.gno) };
+    for (const r of st.remaining) {
+      if (r.slot) { const m = slotMeta(r.code), sem = semOf(r.where); slots.push({ id: r.code, ...m, sem, term: sem % 2 === 1 ? "now" : "plan", ects: r.akts, courses: [], where: r.where }); }
+      else MISSING.push(r);
+    }
+    for (const c of [...st.done, ...st.enrolled]) {
+      const cur = st.enrolled.includes(c);
+      if (c.slot || c.orphan || c.where === "Müfredat dışı") {
+        let id, meta;
+        if (c.slot) { id = /\(([^)]+)\)$/.exec(c.slot)?.[1] || c.slot; meta = slotMeta(id); }
+        else { id = "X-" + c.code; meta = { pool: poolOf(c.code), pools: [poolOf(c.code)], label: c.where === "Müfredat dışı" ? "Extra (outside curriculum)" : "Elective (slot not named in form)" }; }
+        ensure(c.code, c.name, c.akts); if (c.name) C[c.code].name = c.name;
+        C[c.code].ects = c.akts; C[c.code].est = false;
+        slots.push({ id, ...meta, sem: semOf(c.where), term: cur ? "now" : "done", ects: c.akts, courses: [c.code], where: c.where });
+      } else if (cur) { compulsory.push(c); }
+    }
+    // required courses (not slots) that are enrolled become "compulsory"
+    COMPULSORY = compulsory.map(c => { const k = ensure(c.code, c.name, c.akts); k.ects = c.akts; k.est = false; return k; });
+    const order = { done: 0, now: 1, plan: 2 };
+    slots.sort((a, b) => order[a.term] - order[b.term] || a.sem - b.sem);
+    SLOTS = slots;
+    // offered courses relevant to the student's program that are not in the catalog
+    const pref = new Set(["UFND", "UMFD", "SE", "COMP", "ENGR", ...[...st.done, ...st.enrolled].filter(c => c.orphan).map(c => c.code.split(" ")[0])]);
+    for (const o of Object.values(S.offerings)) if (!C[o.code] && pref.has(o.code.split(" ")[0]) && !/(STAJ|ENDÜSTRİYEL DENEYİM|MEZUNİYET|BİREYSEL)/.test(o.name) && !taken.has(o.code)) { const k = ensure(o.code, o.name, /^(UFND|UMFD)/.test(o.code) ? 2 : 6, true); }
+    if (S.chosen) for (const s of SLOTS) if (s.term !== "done" && S.chosen[s.id]) s.courses = S.chosen[s.id].filter(x => C[x]);
+  } else {
+    P = { label: DEMO.label, gpa: DEMO.gpa, ectsDone: DEMO.ectsDone, sem: DEMO.sem, cap: DEMO.cap };
+    GRADES = { ...DEMO.grades }; NAMES = { ...DEMO.names }; taken = new Set(DEMO.taken);
+    COMPULSORY = DEMO.compulsory.map(([code, name, e]) => { const k = ensure(code, name, e); k.ects = e; k.name = name; return k; });
+    SLOTS = DEMO.slots.map(s => ({ ...s, courses: [...s.courses] }));
+    if (S.chosen) for (const s of SLOTS) if (s.term !== "done" && S.chosen[s.id]) s.courses = S.chosen[s.id].filter(x => C[x]);
+  }
+  for (const s of SLOTS) { if (s.term === "plan" && S.early.includes(s.id) && S.chosen?.[s.id]?.length) { s.term = "now"; s.early = true; } for (const code of s.courses) ensure(code); }
+  resolve();
+}
+const tOf = (c, sec) => (c.secs[sec] || []).map(b => [D3[b.d], fmt(b.s), fmt(b.e)]);
+const mins = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const overlapT = (a, b) => a[0] === b[0] && mins(a[1]) < mins(b[2]) && mins(b[1]) < mins(a[2]);
+const exempt = code => FAIL.has(GRADES[code]);
+function chosenNow() { return SLOTS.filter(s => s.term === "now").flatMap(s => s.courses); }
+function locked() { return [...COMPULSORY, ...chosenNow().map(x => C[x])].filter(Boolean); }
+/* sections are not in the Müfredat Durum form: pick the combination with the fewest clashes */
+function resolve() {
+  const L = locked(), unk = L.filter(c => c.offered);
+  const clashes = arr => { let n = 0; for (let i = 0; i < arr.length; i++) for (let j = i + 1; j < arr.length; j++) { if (exempt(arr[i].c.code) || exempt(arr[j].c.code)) continue; if (arr[i].t.some(a => arr[j].t.some(b => overlapT(a, b)))) n++; } return n; };
+  let best = null, bestN = 1e9;
+  const rec = (i, cur) => { const n = clashes(cur); if (n >= bestN) return; if (i === unk.length) { best = cur.map(x => x.sec); bestN = n; return; } const c = unk[i]; const keys = Object.keys(c.secs); const ord = c.sec && c.secs[c.sec] ? [c.sec, ...keys.filter(k => k !== c.sec)] : keys; for (const sec of ord) rec(i + 1, [...cur, { c, sec, t: tOf(c, sec) }]); };
+  rec(0, []);
+  unk.forEach((c, i) => { c.sec = best[i]; c.t = tOf(c, c.sec); });
+  for (const c of L) if (!c.offered) { c.sec = null; c.t = []; }
+}
+function clashFor(t, selfCode) { if (exempt(selfCode)) return null; for (const k of locked()) { if (k.code === selfCode) continue; for (const a of t) for (const b of k.t) if (overlapT(a, b)) return { code: k.code, name: k.name, slot: b }; } return null; }
+/* a candidate "fits" if at least one of its sections is clash-free */
+function clashWith(c, ignore) {
+  if (!c.offered) return null;
+  const secs = Object.keys(c.secs); let first = null;
+  for (const sec of secs) { const t = tOf(c, sec); const cl = clashFor(t, c.code); if (!cl) { c._t = t; c._sec = sec; return null; } if (!first) first = cl; }
+  c._t = tOf(c, secs[0]); c._sec = secs[0]; return first;
+}
+function viewT(c) { if (c.t && c.t.length && slotOf(c.code)) return c.t; clashWith(c); return c._t || []; }
+function slotOf(code) { return SLOTS.find(s => s.courses.includes(code)); }
+function openNowSlots(pool) { return SLOTS.filter(s => s.term === "now" && (pool ? s.pools.includes(pool) : true) && !s.courses.length); }
+const isIntern = c => /(internship|STAJ)/i.test(c.name);
+function ectsNow() { return [...COMPULSORY, ...chosenNow().map(x => C[x])].filter(c => c && !isIntern(c)).reduce((s, c) => s + c.ects, 0); }
+const gpOf = g => GP[g];
+function score(c) {
+  let interest = 0.18;
+  if (S.interests.size) { const m = c.tags.filter(t => S.interests.has(t)).length; interest = m ? 0.55 + 0.08 * (m - 1) : 0.12; }
+  let b = 0.1; const gs = c.builds.filter(x => GRADES[x] && gpOf(GRADES[x]) != null);
+  if (gs.length) b = 0.33 * gs.reduce((s, x) => s + gpOf(GRADES[x]), 0) / gs.length / 4;
+  const ok = c.offered && !clashWith(c) ? 0.1 : 0;
+  return Math.min(0.98, interest + b + ok);
+}
+function fmtT(c) { const t = viewT(c); return t.length ? t.map(x => `${x[0]} ${x[1]}–${x[2]}`).join(", ") : (c.offered ? "—" : "Not offered in Fall 2026–27"); }
+
+/* ===================== HELPERS / ICONS ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function toast(msg) { const t = $("#toast"); t.innerHTML = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2600); }
+const ICON_OK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>';
+const ICON_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const ICON_CLOCK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const tagP = p => `<span class="tag ${POOLCLS[p]}">${p === "F" ? "Field" : p === "U" ? "U" : p}</span>`;
+
+/* ===================== PDF IMPORT ===================== */
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let pdfReady;
+function loadPdfjs() {
+  if (pdfReady) return pdfReady;
+  pdfReady = new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = PDFJS + "pdf.min.js";
+    s.onload = async () => { try { const w = await fetch(PDFJS + "pdf.worker.min.js").then(r => r.text()); pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([w], { type: "text/javascript" })); } catch (e) { pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; } res(); };
+    s.onerror = () => rej(new Error("pdf.js could not be loaded (internet needed)"));
+    document.head.appendChild(s);
+  });
+  return pdfReady;
+}
+async function readPdf(file) {
+  await loadPdfjs();
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise, pages = [];
+  for (let p = 1; p <= doc.numPages; p++) { const tc = await (await doc.getPage(p)).getTextContent(); pages.push(itemsToLines(tc.items.map(i => ({ x: Math.round(i.transform[4]), y: Math.round(i.transform[5]), str: i.str })))); }
+  return pages;
+}
+async function importFiles(files) {
+  const log = [];
+  for (const f of files) {
+    try {
+      const pages = await readPdf(f), head = pages.slice(0, 2).flat().map(l => l.text).join("\n");
+      if (/Müfredat Durum Formu/i.test(head)) { const c = parseCurriculum(pages); S.cur = { ...c, status: curriculumStatus(c) }; log.push(`Curriculum status read: ${S.cur.status.enrolled.length} registered courses, ${S.cur.status.remaining.length} open rows`); }
+      else if (/B\.Notu/.test(head)) { S.tr = parseTranscript(pages); log.push(`Transcript read: ${Object.keys(S.tr.best).length} courses, GPA ${S.tr.gno}`); }
+      else { const o = parseOfferings(pages), n = Object.keys(o).length; if (n < 20) throw new Error("unrecognised file"); S.off = o; log.push(`Course offering list read: ${n} courses`); }
+    } catch (e) { log.push("⚠ " + f.name + ": " + e.message); }
+  }
+  S.log = log;
+  if (S.cur) { S.mode = "real"; S.chosen = null; }
+  buildModel(); persist(); renderAll(); if (S.mode === "real") go("home");
+}
+
+/* ===================== RENDER ===================== */
+function renderHome() {
+  const now = SLOTS.filter(s => s.term === "now"), nf = now.filter(s => s.courses.length).length;
+  const nd = SLOTS.filter(s => s.term === "done").length, np = SLOTS.filter(s => s.term === "plan").length;
+  $("#home-dots").innerHTML = SLOTS.map(s => `<div class="dot ${s.term === "done" ? "done" : s.term === "now" ? "now" : ""}"></div>`).join("");
+  $("#home-legend").innerHTML = `<span><i style="background:var(--ok)"></i>Completed (${nd})</span><span><i style="background:var(--accent)"></i>Due this term (${now.length})</span><span><i style="background:#e9edf5"></i>Spring (${np})</span>`;
+  const pools = new Set(SLOTS.map(s => s.pool)).size;
+  $("#home-elec-text").textContent = `${SLOTS.length} elective slots in your curriculum, from ${pools} different pools.`;
+  $("#home-prog").innerHTML = `<div class="kv">Source<b>${S.mode === "real" ? "Your uploaded documents" : "Demo data"}</b></div><div class="kv">Offerings<b>Official Fall 2026–27 list</b></div><div class="kv">Privacy<b>Stays in this browser</b></div>`;
+  $("#home-id").innerHTML = `<div class="kv">Student<b>${esc(P.label)}</b></div><div class="kv">Documents<b>${S.mode === "real" ? [S.tr ? "Transcript" : null, S.cur ? "Curriculum status" : null].filter(Boolean).join(" + ") : "none (demo)"}</b></div>`;
+  $("#home-acad").innerHTML = `<div class="kv">Semester<b>${esc(P.sem)}</b></div><div class="kv">GPA<b>${P.gpa ?? "—"}</b></div><div class="kv">ECTS completed<b>${esc(P.ectsDone)}</b></div>`;
+  $("#home-reg").innerHTML = `<div class="kv">Status<b>Draft</b></div><div class="kv">Max ECTS<b>${P.cap} (GPA ${P.gpa < 2 ? "< 2.00" : "≥ 2.00"})</b></div>`;
+  const ce = COMPULSORY.filter(c => !isIntern(c)).reduce((s, c) => s + c.ects, 0);
+  $("#home-comp").innerHTML = `<div class="kv">Courses<b>${COMPULSORY.length} courses · ${ce} ECTS</b></div><div class="kv">Added automatically<b>${S.mode === "real" ? "From your form" : "Yes"}</b></div>`;
+  $("#who").innerHTML = `<span class="av">${S.mode === "real" ? "ME" : "DS"}</span>${esc(P.label)}`;
+}
+function renderSlots() {
+  $("#slots").innerHTML = SLOTS.map(s => {
+    const filled = s.courses.length > 0, sum = s.courses.reduce((a, c) => a + C[c].ects, 0);
+    const st = s.term === "done" ? '<span class="tag tOk">Completed</span>' : s.term === "now" ? '<span class="tag tNow">This term</span>' : '<span class="tag tPlan">Spring</span>';
+    const crs = filled ? s.courses.map(c => `<div class="crs">${esc(c)}<small>${esc(C[c].name)}</small></div>`).join("") : `<div class="crs" style="color:var(--ink3);font-weight:500">Empty · needs ${s.ects} ECTS</div>`;
+    const x = filled && s.term !== "done" ? `<button class="xbtn" data-unslot="${esc(s.id)}" title="Remove">✕</button>` : "";
+    return `<div class="slot ${s.term} ${filled ? "filled" : ""}" id="slot-${esc(s.id.replace(/\W/g, "_"))}">${x}
+      <div class="sl-top">${tagP(s.pool)}${st}${s.early ? '<span class="tag tWarn">Early</span>' : ""}</div>
+      <div class="nm">${esc(s.label)}</div><div class="meta">${s.sem ? "Sem " + s.sem + " · " : ""}${s.ects} ECTS${s.pool === "U" && sum && sum < s.ects ? ` · ${sum}/${s.ects}` : ""}</div>${crs}</div>`;
+  }).join("");
+  const done = SLOTS.filter(s => s.courses.length).length, now = SLOTS.filter(s => s.term === "now"), nf = now.filter(s => s.courses.length).length;
+  $("#st-slots").textContent = `${done} / ${SLOTS.length}`;
+  $("#st-now").textContent = `${nf} / ${now.length} filled`;
+  $("#st-now").style.color = nf === now.length ? "var(--ok)" : "var(--ink)";
+  const e = ectsNow(), cap = P.cap;
+  $("#st-ects").textContent = `${e} / ${cap}`; $("#st-bar").style.width = Math.min(100, e / cap * 100) + "%"; $("#st-bar").style.background = e > cap ? "var(--bad)" : "var(--brand)";
+  const cl = clashList(); $("#st-clash").textContent = cl.length ? cl.length + " found" : "None"; $("#st-clash").style.color = cl.length ? "var(--bad)" : "var(--ok)";
+}
+function clashList() {
+  const L = locked(), out = [];
+  for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) { if (exempt(L[i].code) || exempt(L[j].code)) continue; for (const a of L[i].t) for (const b of L[j].t) if (overlapT(a, b)) out.push([L[i].code, L[j].code, a]); }
+  return out;
+}
+function renderChips() { $("#chips").innerHTML = TOPICS.map(t => `<button class="chip ${S.interests.has(t.id) ? "on" : ""}" data-topic="${t.id}">${S.interests.has(t.id) ? ICON_OK : ""}${t.label}</button>`).join(""); }
+function visibleCourses() {
+  const q = S.q.trim().toLowerCase(), fillable = new Set(SLOTS.filter(s => s.term !== "done" && !s.courses.length).flatMap(s => s.pools));
+  let list = COURSES.filter(c => !taken.has(c.code) && !COMPULSORY.includes(c));
+  if (q) list = list.filter(c => (c.code + " " + c.name).toLowerCase().includes(q.replace(/\s+/g, " ")));
+  else list = list.filter(c => c.offered && fillable.has(c.pool));
+  if (S.term) list = list.filter(c => c.offered && fillable.has(c.pool));
+  if (S.fit) list = list.filter(c => !c.offered || !clashWith(c) || slotOf(c.code));
+  return list.sort((a, b) => score(b) - score(a));
+}
+function whyText(c) {
+  const parts = [];
+  const m = c.tags.filter(t => S.interests.has(t)).map(t => TOPICS.find(x => x.id === t).label);
+  if (m.length) parts.push(`Matches <b>${m.join(" + ")}</b>`);
+  const gs = c.builds.filter(x => GRADES[x]);
+  if (gs.length) parts.push(`builds on ${gs.map(x => `<b>${esc(NAMES[x] || x)}</b> (${GRADES[x]})`).join(" and ")}`);
+  if (!parts.length) parts.push(c.desc || "Offered this term");
+  const s = parts.join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + ".";
+}
+function renderList() {
+  const list = visibleCourses();
+  $("#count").textContent = `${list.length} course${list.length === 1 ? "" : "s"}`;
+  if (!list.length) { $("#list").innerHTML = '<div class="empty">No electives match. Try removing a filter.</div>'; return; }
+  $("#list").innerHTML = list.slice(0, 60).map(c => {
+    const sc = Math.round(score(c) * 100), inSlot = slotOf(c.code), cl = c.offered ? clashWith(c) : null;
+    const badges = [tagP(c.pool).replace(">" + (c.pool === "F" ? "Field" : c.pool === "U" ? "U" : c.pool) + "<", `>${POOLNAME[c.pool]}<`), `<span class="tag tGray">${c.est ? "~" : ""}${c.ects} ECTS</span>`];
+    if (!c.offered) badges.push('<span class="tag tPlan">Not offered this Fall</span>');
+    if (cl && !inSlot) badges.push(`<span class="tag tBad">Clashes with ${esc(cl.code)}</span>`);
+    if (GRADES[c.code]) badges.push(`<span class="tag tWarn">retake · had ${GRADES[c.code]}</span>`);
+    const action = inSlot ? `<button class="btn btn-ok btn-sm" disabled>${ICON_OK}Added to ${esc(inSlot.label)}</button>` : `<button class="btn btn-primary btn-sm" data-add="${esc(c.code)}">Add to a slot</button>`;
+    return `<div class="cc ${inSlot ? "added" : ""} ${(cl && !inSlot) ? "dim" : ""}" id="cc-${esc(c.code.replace(" ", ""))}">
+      <div class="r1"><div><div class="code">${esc(c.code)}</div><div class="name">${esc(c.name)}</div></div>
+        ${S.interests.size ? `<div class="match"><b>${sc}%</b><span>match</span></div>` : ""}</div>
+      <div class="row">${badges.join("")}</div>
+      <div class="when">${ICON_CLOCK} ${fmtT(c)}${c.offered && Object.keys(c.secs).length > 1 ? ` · ${Object.keys(c.secs).length} sections` : ""}</div>
+      <div class="why">${whyText(c)}</div>
+      <div class="acts"><button class="btn btn-ghost btn-sm" data-info="${esc(c.code)}">Details</button>${action}</div></div>`;
+  }).join("") + (list.length > 60 ? `<div class="empty">Showing the first 60 of ${list.length}. Narrow the search.</div>` : "");
+}
+function renderReg() {
+  const rows = [...COMPULSORY.map(c => ({ c, as: "Compulsory" })), ...SLOTS.filter(s => s.term === "now" && s.courses.length).flatMap(s => s.courses.map(code => ({ c: C[code], as: s.label })))];
+  const cl = clashList(), clashCodes = new Set(cl.flat().filter(x => typeof x === "string"));
+  let h = `<table><tr><th>Code</th><th>Course</th><th>Taken as</th><th>Section · Time</th><th class="r">ECTS</th></tr>${rows.map(r => `<tr><td><b>${esc(r.c.code)}</b></td><td>${esc(r.c.name)}</td><td>${esc(r.as)}</td><td${clashCodes.has(r.c.code) ? ' style="color:var(--bad)"' : ""}>${r.c.t && r.c.t.length ? (r.c.sec ? "Sec " + esc(r.c.sec) + " · " : "") + r.c.t.map(x => `${x[0]} ${x[1]}–${x[2]}`).join(", ") : "—"}</td><td class="r">${r.c.ects}</td></tr>`).join("")}
+    <tr><td></td><td><b>Total (internship not counted)</b></td><td></td><td></td><td class="r"><b>${ectsNow()} / ${P.cap}</b></td></tr></table>`;
+  if (S.mode === "real") h += '<p class="fine" style="margin:10px 0 0">Your curriculum form does not list section numbers, so sections are chosen to avoid clashes. Compare with your section numbers in OBS.</p>';
+  if (MISSING.length) h += `<div style="margin-top:16px"><b>Required courses still open in your curriculum</b><table style="margin-top:6px">${MISSING.map(r => `<tr><td><b>${esc(r.code)}</b></td><td>${esc(r.name)}</td><td>${esc(r.where)}</td><td>${C[r.code] ? (C[r.code].offered ? '<span class="tag tOk">offered this Fall</span>' : '<span class="tag tGray">not in the Fall list</span>') : (S.offerings[r.code] ? '<span class="tag tOk">offered this Fall</span>' : '<span class="tag tGray">not in the Fall list</span>')}</td></tr>`).join("")}</table></div>`;
+  $("#reg-table").innerHTML = h;
+}
+function renderData() {
+  const chip = (ok, t) => `<span class="chip ${ok ? "on" : ""}" style="cursor:default">${ok ? ICON_OK : ""}${t}</span>`;
+  $("#data-chips").innerHTML = chip(!!S.tr, "Transcript") + chip(!!S.cur, "Curriculum status form") + chip(true, S.off ? "Course list (uploaded)" : "Course list · " + OFFERINGS_TERM + " (built in)");
+  $("#data-log").innerHTML = (S.log || []).map(l => `<li>${esc(l)}</li>`).join("");
+}
+function renderAll() { buildModelLite(); renderSlots(); renderChips(); renderList(); renderReg(); renderHome(); renderData(); persist(); }
+function buildModelLite() { resolve(); }
+
+/* ===================== DRAWER / MODALS ===================== */
+function openScrim() { $("#scrim").classList.add("show"); }
+function closeAll() { $("#scrim").classList.remove("show"); $("#drawer").classList.remove("show"); $("#modal").classList.remove("show"); }
+function openInfo(code) {
+  const c = C[code], cl = c.offered ? clashWith(c) : null, inSlot = slotOf(code);
+  const okSlots = SLOTS.filter(s => s.term !== "done" && s.pools.includes(c.pool));
+  $("#drawer").innerHTML = `<div class="dr-h"><div class="code">${esc(c.code)}</div><h3>${esc(c.name)}</h3>
+      <div class="row" style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag ${POOLCLS[c.pool]}">${POOLNAME[c.pool]}</span><span class="tag tGray">${c.ects} ECTS</span>${c.offered ? '<span class="tag tOk">Offered this Fall</span>' : '<span class="tag tPlan">Not offered this Fall</span>'}</div></div>
+    <div class="dr-b">
+      <div><h4>About</h4><p>${esc(c.desc || "No description in the catalog.")}</p></div>
+      <div class="facts">
+        <div class="fact"><span>This term</span><b>${fmtT(c)}</b></div>
+        <div class="fact"><span>Sections</span><b>${Object.keys(c.secs).length || "—"}</b></div>
+        <div class="fact"><span>Builds on</span><b>${c.builds.length ? c.builds.map(x => `${esc(x)}${GRADES[x] ? " (" + GRADES[x] + ")" : ""}`).join(", ") : "—"}</b></div>
+        <div class="fact"><span>Timetable</span><b style="color:${cl ? "var(--bad)" : "var(--ok)"}">${!c.offered ? "—" : cl ? "Clashes with " + esc(cl.code) : "No clash"}</b></div>
+      </div>
+      <div><h4>Counts toward</h4><div class="counts">${okSlots.length ? okSlots.slice(0, 8).map(s => `<div><span class="tag tOk">${ICON_OK}</span><span>${esc(s.label)} <small style="color:var(--ink3)">· ${s.term === "now" ? "this term" : "spring"}</small></span></div>`).join("") + (okSlots.length > 8 ? `<div style="color:var(--ink3)">+${okSlots.length - 8} more</div>` : "") : '<div style="color:var(--ink3)">No open slot accepts this pool.</div>'}</div></div>
+    </div>
+    <div class="dr-f"><button class="btn btn-ghost" data-close>Close</button>${inSlot ? `<button class="btn btn-ok" disabled>${ICON_OK}Added</button>` : `<button class="btn btn-primary" data-add="${esc(c.code)}">Add to a slot</button>`}</div>`;
+  openScrim(); $("#drawer").classList.add("show");
+}
+function similarFor(c, pools) {
+  return COURSES.filter(x => pools.includes(x.pool) && x.offered && !taken.has(x.code) && !slotOf(x.code) && !COMPULSORY.includes(x) && !clashWith(x) && x.tags.some(t => c.tags.includes(t))).sort((a, b) => score(b) - score(a)).slice(0, 3);
+}
+function startAdd(code) {
+  const c = C[code];
+  $("#drawer").classList.remove("show");
+  const cl = c.offered ? clashWith(c) : null;
+  const open = [...openNowSlots(c.pool), ...SLOTS.filter(s => s.term === "plan" && s.pools.includes(c.pool) && !s.courses.length)];
+  if (!c.offered || !open.length) {
+    const poolSlots = SLOTS.filter(s => s.pools.includes(c.pool) && s.term !== "done");
+    const target = openNowSlots()[0], alts = target ? similarFor(c, target.pools) : [];
+    const why = !c.offered ? `<b>${esc(c.code)}</b> is in the catalog but not in the official Fall 2026–27 course list, so nobody can register for it this term.` : `<b>${esc(c.code)}</b> belongs to <b>${POOLNAME[c.pool]}</b> and every slot that accepts it is already filled.`;
+    $("#modal").innerHTML = `<div class="m-h"><span class="ic" style="background:var(--bad-soft);color:var(--bad)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg></span>
+        <div><h3>${esc(c.code)} won't count this term</h3><p>${esc(c.name)}</p></div></div>
+      <div class="m-b"><div class="why-box">${why}${poolSlots.length ? ` It could count for: ${poolSlots.slice(0, 4).map(s => esc(s.label)).join(", ")}${poolSlots.length > 4 ? "…" : ""}.` : ""}</div>
+        ${alts.length && target ? `<div style="margin:16px 0 4px;font-weight:700">Similar courses that do count for ${esc(target.label)}</div>` + alts.map(a => `<div class="alt">${tagP(a.pool)}<div><div class="name">${esc(a.code)} · ${esc(a.name)}</div><div class="sub">${fmtT(a)}</div></div><button class="btn btn-primary btn-sm" data-add="${esc(a.code)}">Add</button></div>`).join("") : ""}
+      </div><div class="m-f"><button class="btn btn-ghost" data-close>Close</button></div>`;
+    openScrim(); $("#modal").classList.add("show"); return;
+  }
+  if (cl) { toast(`${ICON_X} ${esc(c.code)} clashes with ${esc(cl.code)} (${cl.slot[0]} ${cl.slot[1]})`); closeAll(); return; }
+  $("#modal").innerHTML = `<div class="m-h"><span class="ic">${ICON_OK}</span><div><h3>Add ${esc(c.code)} to which slot?</h3><p>${esc(c.name)} counts for these open slots. Slots from a later semester mean taking the course early.</p></div></div>
+    <div class="m-b"><div class="slotpick">${open.map(s => `<button data-put="${esc(c.code)}" data-slot="${esc(s.id)}">${tagP(s.pool)}<b>${esc(s.label)}</b><small>${s.term === "plan" ? "Early · sem " + s.sem + " · " : s.sem ? "Sem " + s.sem + " · " : ""}${s.ects} ECTS</small></button>`).join("")}</div></div>
+    <div class="m-f"><button class="btn btn-ghost" data-close>Cancel</button></div>`;
+  openScrim(); $("#modal").classList.add("show");
+}
+const slotEl = id => $("#slot-" + id.replace(/\W/g, "_"));
+function put(code, slotId, quiet) {
+  const s = SLOTS.find(x => x.id === slotId); s.courses = [code]; if (s.term === "plan") { s.term = "now"; s.early = true; }
+  const c = C[code]; c.sec = null; closeAll(); renderAll();
+  const el = slotEl(slotId); if (el) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  if (!quiet) toast(`${ICON_OK} ${esc(code)} added to ${esc(s.label)}`);
+}
+function autofill() {
+  const open = SLOTS.filter(s => s.term === "now" && !s.courses.length);
+  if (!open.length) { toast("All slots for this term are already filled"); return; }
+  const cap = P.cap; let filled = 0;
+  for (const s of open) {
+    if (ectsNow() + s.ects > cap) continue;
+    const best = COURSES.filter(c => s.pools.includes(c.pool) && c.offered && !taken.has(c.code) && !slotOf(c.code) && !COMPULSORY.includes(c) && !clashWith(c)).sort((a, b) => score(b) - score(a))[0];
+    if (best) { s.courses = [best.code]; best.sec = null; resolve(); filled++; }
+  }
+  renderAll(); open.forEach(s => { const el = slotEl(s.id); if (el) el.classList.add("flash"); });
+  toast(filled ? `${ICON_OK} Filled ${filled} slot${filled > 1 ? "s" : ""} with your best clash-free matches (stays within ${cap} ECTS)` : "No more slots fit within your ECTS limit or timetable");
+}
+function springPlan() {
+  const plan = SLOTS.filter(s => s.term === "plan" && !s.courses.length), used = new Set();
+  if (!plan.length) { toast("No spring slots left to plan"); return; }
+  for (const s of plan) {
+    const usedTags = new Set([...used].flatMap(u => C[u].tags));
+    const pool = COURSES.filter(c => s.pools.includes(c.pool) && !taken.has(c.code) && !used.has(c.code) && !slotOf(c.code));
+    if (s.pool === "U") {                      // university slots: single course or a pair that sums to the required ECTS
+      const U = pool.filter(c => c.ects <= s.ects); let best = null, bv = -1;
+      for (const c of U) if (c.ects === s.ects && score(c) > bv) { bv = score(c); best = [c.code]; }
+      for (let i = 0; i < U.length; i++) for (let j = i + 1; j < U.length; j++) if (U[i].ects + U[j].ects === s.ects) { const v = score(U[i]) + score(U[j]); if (v > bv) { bv = v; best = [U[i].code, U[j].code]; } }
+      if (best) { s.courses = best.sort((a, b) => C[b].ects - C[a].ects); best.forEach(x => used.add(x)); }
+    } else {
+      const best = pool.filter(c => !c.tags.some(t => usedTags.has(t))).sort((a, b) => score(b) - score(a))[0] || pool.sort((a, b) => score(b) - score(a))[0];
+      if (best) { s.courses = [best.code]; used.add(best.code); }
+    }
+  }
+  renderAll(); plan.forEach(s => { const el = slotEl(s.id); if (el) el.classList.add("flash"); });
+  toast(`${ICON_OK} Spring draft saved · timetable not published yet, you can change it any time`);
+}
+function review() {
+  const now = SLOTS.filter(s => s.term === "now"), missing = now.filter(s => !s.courses.length);
+  const rows = [...COMPULSORY.map(c => ({ ...c, as: "Compulsory" })), ...now.filter(s => s.courses.length).flatMap(s => s.courses.map(code => ({ ...C[code], as: s.label })))];
+  const cl = clashList(), e = ectsNow(), over = e > P.cap, under = e < 20;
+  const ok = !cl.length && !over && !under;
+  $("#modal").innerHTML = `<div class="m-h"><div><h3>Registration summary</h3><p>${esc(P.label)} · ${esc(P.sem)} · 2026–2027 Fall</p></div></div>
+    <div class="m-b"><table><tr><th>Code</th><th>Course</th><th>Taken as</th><th class="r">ECTS</th></tr>
+      ${rows.map(r => `<tr><td><b>${esc(r.code)}</b></td><td>${esc(r.name)}</td><td>${esc(r.as)}</td><td class="r">${r.ects}</td></tr>`).join("")}
+      <tr><td></td><td><b>Total (internship not counted)</b></td><td></td><td class="r"><b>${e} / ${P.cap}</b></td></tr></table>
+      ${missing.length ? `<div class="why-box" style="margin-top:14px;background:var(--warn-soft);border-color:#f0dcae;color:#7a5410">${missing.length} elective slot(s) still empty this term: ${missing.slice(0, 6).map(s => esc(s.label)).join(", ")}${missing.length > 6 ? "…" : ""}. That is fine if your ECTS total is already within limits.</div>` : ""}
+      <div class="checks" style="${ok ? "" : "background:var(--bad-soft);color:var(--bad)"}"><div>${over ? ICON_X : ICON_OK}ECTS ${e}/${P.cap}${over ? " — over the limit" : under ? " — below the 20 ECTS minimum" : " — within limits"}</div><div>${cl.length ? ICON_X : ICON_OK}${cl.length ? cl.length + " timetable clash(es): " + cl.map(c => c[0] + " ↔ " + c[1]).join(", ") : "No clashes between your courses"}</div><div>${ICON_OK}Every elective sits in a slot that accepts its pool</div></div>
+    </div>
+    <div class="m-f"><button class="btn btn-ghost" data-close>Back</button><button class="btn btn-primary" id="btn-confirm">Export plan as image</button></div>`;
+  openScrim(); $("#modal").classList.add("show");
+}
+function drawPlan() {
+  const W = 1600, cols = [["Completed", "done", "#14915f", "#e3f6ed"], ["This term · Fall", "now", "#2f5bea", "#e8eeff"], ["Next term · Spring (draft)", "plan", "#6d3dc0", "#efe8fb"]];
+  const colSlots = cols.map(c => SLOTS.filter(s => s.term === c[1] && (s.courses.length || c[1] !== "done")));
+  const hOf = s => 60 + Math.max(1, s.courses.length) * 46 - (s.courses.length ? 0 : 20);
+  const colH = colSlots.map(a => a.reduce((t, s) => t + hOf(s) + 16, 0));
+  const H = Math.max(760, 190 + 30 + Math.max(...colH) + 150), cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d");
+  const F = "Inter, system-ui, sans-serif";
+  g.fillStyle = "#f3f5f9"; g.fillRect(0, 0, W, H);
+  const rr = (x, y, w, h, r, fill) => { g.beginPath(); g.roundRect(x, y, w, h, r); if (fill) { g.fillStyle = fill; g.fill(); } };
+  rr(40, 40, W - 80, H - 80, 24, "#fff");
+  rr(80, 80, 56, 56, 14, "#2f5bea"); g.strokeStyle = "#fff"; g.lineWidth = 3; g.beginPath(); g.arc(108, 108, 16, 0, 7); g.stroke();
+  g.fillStyle = "#0f1b33"; g.font = `700 34px ${F}`; g.fillText("Elective Plan", 156, 112);
+  g.fillStyle = "#4a5672"; g.font = `500 18px ${F}`; g.fillText(`Yaşar University · ${P.label} · 2026–2027`, 156, 138);
+  rr(W - 360, 84, 280, 40, 20, "#fdf3e1"); g.fillStyle = "#b7791f"; g.font = `700 16px ${F}`; g.fillText("Draft · not an official registration", W - 345, 110);
+  const cw = (W - 160 - 80) / 3;
+  cols.forEach(([title, term, col, soft], i) => {
+    const x = 80 + i * (cw + 40), y = 190; g.fillStyle = col; g.font = `700 20px ${F}`; g.fillText(title, x, y);
+    let yy = y + 22;
+    colSlots[i].forEach(s => {
+      const h = hOf(s); rr(x, yy, cw, h, 16, soft); g.fillStyle = col; g.font = `700 14px ${F}`; g.fillText(`${s.label.toUpperCase()}  ·  ${s.ects} ECTS`, x + 20, yy + 32);
+      s.courses.forEach((c, k) => { g.fillStyle = "#0f1b33"; g.font = `700 19px ${F}`; g.fillText(c, x + 20, yy + 70 + k * 46); g.fillStyle = "#4a5672"; g.font = `500 16px ${F}`; let n = C[c].name; if (n.length > 30) n = n.slice(0, 29) + "…"; g.fillText(n, x + 150, yy + 70 + k * 46); });
+      yy += h + 16;
+    });
+  });
+  g.fillStyle = "#8590a8"; g.font = `500 15px ${F}`; g.fillText(`Fall total: ${ectsNow()} / ${P.cap} ECTS · ${clashList().length ? clashList().length + " clash(es)" : "no clashes"} · timetables from the official Fall 2026–27 list`, 80, H - 80);
+  g.fillText("Course project prototype — not the official Yaşar University system.", 80, H - 56);
+  return cv.toDataURL("image/png");
+}
+function downloadPNG() { const url = drawPlan(); try { const a = document.createElement("a"); a.href = url; a.download = "elective-plan.png"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { } closeAll(); $("#sheet-img").src = url; go("sheet"); }
+
+/* ===================== NAV / EVENTS ===================== */
+function go(p) {
+  $("#toast").classList.remove("show");
+  ["home", "reg", "plan", "data", "sheet"].forEach(x => $("#pg-" + x).classList.toggle("hidden", x !== p));
+  document.querySelectorAll(".nav a[data-go]").forEach(a => a.classList.toggle("on", a.dataset.go === p));
+  window.scrollTo({ top: 0 });
+}
+function start(mode) { S.mode = mode; S.chosen = null; buildModel(); $("#signin").classList.add("hidden"); $("#app").classList.remove("hidden"); renderAll(); go(mode === "real" ? "home" : "home"); }
+$("#btn-signin").onclick = () => start("demo");
+$("#btn-import").onclick = () => { S.mode = S.mode || "demo"; buildModel(); $("#signin").classList.add("hidden"); $("#app").classList.remove("hidden"); renderAll(); go("data"); };
+$("#btn-open-planner").onclick = () => go("plan");
+document.querySelectorAll(".nav a[data-go]").forEach(a => a.onclick = () => go(a.dataset.go));
+$("#q").addEventListener("input", e => { S.q = e.target.value; renderList(); });
+[["#tg-fit", "fit"], ["#tg-term", "term"]].forEach(([id, k]) => $(id).onclick = () => { S[k] = !S[k]; $(id).classList.toggle("on", S[k]); renderList(); });
+$("#btn-autofill").onclick = autofill; $("#btn-spring").onclick = springPlan; $("#btn-review").onclick = review; $("#scrim").onclick = closeAll;
+$("#file").onchange = e => importFiles([...e.target.files]);
+const drop = $("#drop");
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("hot"); }); drop.addEventListener("dragleave", () => drop.classList.remove("hot"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("hot"); importFiles([...e.dataTransfer.files]); });
+$("#btn-wipe").onclick = wipeAll; $("#btn-demo-again").onclick = () => { S.mode = "demo"; S.chosen = null; S.cur = null; buildModel(); renderAll(); go("home"); };
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-topic],[data-add],[data-info],[data-put],[data-close],[data-unslot],#btn-confirm,#btn-png");
+  if (!t) return;
+  if (t.dataset.topic) { const id = t.dataset.topic; S.interests.has(id) ? S.interests.delete(id) : S.interests.add(id); renderChips(); renderList(); persist(); }
+  else if (t.dataset.add) startAdd(t.dataset.add);
+  else if (t.dataset.info) openInfo(t.dataset.info);
+  else if (t.dataset.put) put(t.dataset.put, t.dataset.slot);
+  else if (t.dataset.unslot) { const s = SLOTS.find(x => x.id === t.dataset.unslot); s.courses.forEach(c => { C[c].sec = null; }); s.courses = []; if (s.early) { s.term = "plan"; s.early = false; } renderAll(); }
+  else if (t.id === "btn-confirm") downloadPNG();
+  else if (t.id === "btn-png") downloadPNG();
+  else if (t.hasAttribute("data-close")) closeAll();
+});
+restore();
+if (S.mode) { buildModel(); $("#signin").classList.add("hidden"); $("#app").classList.remove("hidden"); renderAll(); go("home"); }
+</script></body></html>
